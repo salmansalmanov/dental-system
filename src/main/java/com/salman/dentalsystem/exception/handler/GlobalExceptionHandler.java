@@ -1,0 +1,37 @@
+package com.salman.dentalsystem.exception.handler;
+
+import com.salman.dentalsystem.model.enums.ErrorCode;
+import com.salman.dentalsystem.result.ErrorDataResult;
+import com.salman.dentalsystem.result.ErrorResult;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.util.HashMap;
+import java.util.Map;
+
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorDataResult<Map<String, String>>> handle(MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+        for (FieldError fieldError : ex.getBindingResult().getFieldErrors()) {
+            errors.put(fieldError.getField(), fieldError.getDefaultMessage());
+        }
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorDataResult<>(errors, "Validasiya xətası", ErrorCode.VALIDATION_ERROR));
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResult> handle(Exception ex) {
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ErrorResult(ex.getMessage(), ErrorCode.INTERNAL_SERVER_ERROR));
+    }
+}

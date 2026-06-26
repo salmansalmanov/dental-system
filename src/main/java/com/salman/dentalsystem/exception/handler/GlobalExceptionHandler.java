@@ -1,5 +1,6 @@
 package com.salman.dentalsystem.exception.handler;
 
+import com.salman.dentalsystem.exception.custom.NotFoundException;
 import com.salman.dentalsystem.model.enums.ErrorCode;
 import com.salman.dentalsystem.result.ErrorDataResult;
 import com.salman.dentalsystem.result.ErrorResult;
@@ -15,6 +16,13 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<ErrorResult> handle(NotFoundException ex) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResult(ex.getMessage(), ex.getCode()));
+    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorDataResult<Map<String, String>>> handle(MethodArgumentNotValidException ex) {

@@ -4,13 +4,19 @@ import com.salman.dentalsystem.exception.custom.NotFoundException;
 import com.salman.dentalsystem.mapper.PatientMapper;
 import com.salman.dentalsystem.model.dto.request.PatientCreateRequest;
 import com.salman.dentalsystem.model.dto.response.PatientDetailedResponse;
+import com.salman.dentalsystem.model.dto.response.PatientResponse;
 import com.salman.dentalsystem.model.entity.Patient;
 import com.salman.dentalsystem.model.enums.ErrorCode;
 import com.salman.dentalsystem.repository.PatientRepository;
 import com.salman.dentalsystem.result.DataResult;
+import com.salman.dentalsystem.result.PageData;
 import com.salman.dentalsystem.result.SuccessDataResult;
 import com.salman.dentalsystem.service.abstraction.PatientService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -35,5 +41,21 @@ public class PatientServiceImpl implements PatientService {
                 .orElseThrow(() -> new NotFoundException("Pasiyent tapılmadı: " + id, ErrorCode.PATIENT_NOT_FOUND));
         PatientDetailedResponse patientDetailedResponse = patientMapper.toDetailedResponse(foundPatient);
         return new SuccessDataResult<>(patientDetailedResponse, "Pasiyent tapıldı");
+    }
+
+    @Override
+    public DataResult<PageData<PatientResponse>> getAll(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<Patient> patientPage = patientRepository.findAll(pageable);
+        PageData<PatientResponse> pageData = PageData.<PatientResponse>builder()
+                .totalPages(patientPage.getTotalPages())
+                .totalElements(patientPage.getTotalElements())
+                .firstPage(patientPage.isFirst())
+                .lastPage(patientPage.isLast())
+                .page(patientPage.getNumber())
+                .size(patientPage.getSize())
+                .content(patientPage.getContent().stream().map(patientMapper::toResponse).toList())
+                .build();
+        return new SuccessDataResult<>(pageData, "Pasiyentlər tapıldı");
     }
 }

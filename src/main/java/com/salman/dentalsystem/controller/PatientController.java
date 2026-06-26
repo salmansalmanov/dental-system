@@ -2,7 +2,9 @@ package com.salman.dentalsystem.controller;
 
 import com.salman.dentalsystem.model.dto.request.PatientCreateRequest;
 import com.salman.dentalsystem.model.dto.response.PatientDetailedResponse;
+import com.salman.dentalsystem.model.dto.response.PatientResponse;
 import com.salman.dentalsystem.result.DataResult;
+import com.salman.dentalsystem.result.PageData;
 import com.salman.dentalsystem.service.abstraction.PatientService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -30,5 +32,15 @@ public class PatientController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(patientService.getById(id));
+    }
+
+    @GetMapping
+    public ResponseEntity<DataResult<PageData<PatientResponse>>> getAllPatients(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(patientService.getAll(page, size));
     }
 }

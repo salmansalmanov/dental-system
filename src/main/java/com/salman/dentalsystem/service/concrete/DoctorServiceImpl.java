@@ -3,6 +3,7 @@ package com.salman.dentalsystem.service.concrete;
 import com.salman.dentalsystem.exception.custom.NotFoundException;
 import com.salman.dentalsystem.mapper.DoctorMapper;
 import com.salman.dentalsystem.model.dto.request.DoctorCreateRequest;
+import com.salman.dentalsystem.model.dto.request.DoctorUpdateRequest;
 import com.salman.dentalsystem.model.dto.response.DoctorDetailedResponse;
 import com.salman.dentalsystem.model.dto.response.DoctorResponse;
 import com.salman.dentalsystem.model.entity.Doctor;
@@ -59,5 +60,15 @@ public class DoctorServiceImpl implements DoctorService {
                 .content(doctorPage.getContent().stream().map(doctorMapper::toResponse).toList())
                 .build();
         return new SuccessDataResult<>(pageData, "Həkimlər tapıldı");
+    }
+
+    @Override
+    public DataResult<DoctorDetailedResponse> updateById(UUID id, DoctorUpdateRequest request) {
+        Doctor existingDoctor = doctorRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Həkim tapılmadı: " + id, ErrorCode.DOCTOR_NOT_FOUND));
+        Doctor updatedDoctor = doctorMapper.updateRequestToEntity(request, existingDoctor);
+        Doctor savedDoctor = doctorRepository.save(updatedDoctor);
+        DoctorDetailedResponse response = doctorMapper.toDetailedResponse(savedDoctor);
+        return new SuccessDataResult<>(response, "Həkim yeniləndi");
     }
 }

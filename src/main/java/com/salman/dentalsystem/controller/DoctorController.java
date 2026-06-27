@@ -1,6 +1,7 @@
 package com.salman.dentalsystem.controller;
 
 import com.salman.dentalsystem.model.dto.request.DoctorCreateRequest;
+import com.salman.dentalsystem.model.dto.request.DoctorUpdateRequest;
 import com.salman.dentalsystem.model.dto.response.DoctorDetailedResponse;
 import com.salman.dentalsystem.model.dto.response.DoctorResponse;
 import com.salman.dentalsystem.result.DataResult;
@@ -41,5 +42,15 @@ public class DoctorController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(doctorService.getAll(page, size));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<DataResult<DoctorDetailedResponse>> updateDoctorById(
+            @PathVariable UUID id,
+            @RequestBody @Valid DoctorUpdateRequest request
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(doctorService.updateById(id, request));
     }
 }

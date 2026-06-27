@@ -70,4 +70,13 @@ public class PatientServiceImpl implements PatientService {
         Patient savedPatient = patientRepository.save(updatedPatient);
         return new SuccessDataResult<>(patientMapper.toDetailedResponse(savedPatient), "Pasiyent uğurla yeniləndi");
     }
+
+    @Override
+    public DataResult<PatientDetailedResponse> deleteById(UUID id) {
+        Patient patient = patientRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Pasiyent tapılmadı: " + id, ErrorCode.PATIENT_NOT_FOUND));
+        patient.setStatus(UserStatus.DELETED);
+        Patient savedPatient = patientRepository.save(patient);
+        return new SuccessDataResult<>(patientMapper.toDetailedResponse(savedPatient), "Pasiyent uğurla silindi");
+    }
 }

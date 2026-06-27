@@ -17,4 +17,6 @@ public interface PatientService {
     DataResult<PageData<PatientResponse>> getAll(int page, int size);
 
     DataResult<PatientDetailedResponse> updateById(UUID id, PatientUpdateRequest request);
+
+    DataResult<PatientDetailedResponse> deleteById(UUID id);
 }

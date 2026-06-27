@@ -71,4 +71,14 @@ public class DoctorServiceImpl implements DoctorService {
         DoctorDetailedResponse response = doctorMapper.toDetailedResponse(savedDoctor);
         return new SuccessDataResult<>(response, "Həkim yeniləndi");
     }
+
+    @Override
+    public DataResult<DoctorDetailedResponse> deleteById(UUID id) {
+        Doctor doctor = doctorRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Həkim tapılmadı: " + id, ErrorCode.DOCTOR_NOT_FOUND));
+        doctor.setStatus(UserStatus.DELETED);
+        Doctor savedDoctor = doctorRepository.save(doctor);
+        DoctorDetailedResponse response = doctorMapper.toDetailedResponse(savedDoctor);
+        return new SuccessDataResult<>(response, "Həkim silindi");
+    }
 }

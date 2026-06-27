@@ -53,4 +53,11 @@ public class DoctorController {
                 .status(HttpStatus.OK)
                 .body(doctorService.updateById(id, request));
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<DataResult<DoctorDetailedResponse>> deleteDoctorById(@PathVariable UUID id) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(doctorService.deleteById(id));
+    }
 }

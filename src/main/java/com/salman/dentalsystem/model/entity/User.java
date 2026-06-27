@@ -1,6 +1,7 @@
 package com.salman.dentalsystem.model.entity;
 
 import com.salman.dentalsystem.model.enums.Role;
+import com.salman.dentalsystem.model.enums.UserStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,6 +21,9 @@ public abstract class User extends BaseEntity {
     private String patronymic;
     private String phoneNumber;
     private String pin;
+
+    @Enumerated(EnumType.STRING)
+    private UserStatus status;
 
     @Enumerated(EnumType.STRING)
     private Role role;

@@ -8,6 +8,7 @@ import com.salman.dentalsystem.model.dto.response.PatientDetailedResponse;
 import com.salman.dentalsystem.model.dto.response.PatientResponse;
 import com.salman.dentalsystem.model.entity.Patient;
 import com.salman.dentalsystem.model.enums.ErrorCode;
+import com.salman.dentalsystem.model.enums.UserStatus;
 import com.salman.dentalsystem.repository.PatientRepository;
 import com.salman.dentalsystem.result.DataResult;
 import com.salman.dentalsystem.result.PageData;
@@ -31,6 +32,7 @@ public class PatientServiceImpl implements PatientService {
     @Override
     public DataResult<PatientDetailedResponse> create(PatientCreateRequest request) {
         Patient patient = patientMapper.createRequestToEntity(request);
+        patient.setStatus(UserStatus.ACTIVE);
         Patient savedPatient = patientRepository.save(patient);
         PatientDetailedResponse patientDetailedResponse = patientMapper.toDetailedResponse(savedPatient);
         return new SuccessDataResult<>(patientDetailedResponse, "Pasiyent uğurla yaradıldı");

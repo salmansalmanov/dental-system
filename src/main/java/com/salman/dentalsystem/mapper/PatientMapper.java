@@ -15,6 +15,7 @@ public interface PatientMapper {
 
     @Mapping(target = "role", constant = "PATIENT")
     @Mapping(target = "pin", source = "pin", qualifiedByName = "toUpper")
+    @Mapping(target = "status", constant = "PENDING")
     Patient createRequestToEntity(PatientCreateRequest request);
 
     PatientDetailedResponse toDetailedResponse(Patient patient);

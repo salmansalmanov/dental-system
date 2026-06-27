@@ -3,6 +3,7 @@ package com.salman.dentalsystem.service.concrete;
 import com.salman.dentalsystem.exception.custom.NotFoundException;
 import com.salman.dentalsystem.mapper.PatientMapper;
 import com.salman.dentalsystem.model.dto.request.PatientCreateRequest;
+import com.salman.dentalsystem.model.dto.request.PatientUpdateRequest;
 import com.salman.dentalsystem.model.dto.response.PatientDetailedResponse;
 import com.salman.dentalsystem.model.dto.response.PatientResponse;
 import com.salman.dentalsystem.model.entity.Patient;
@@ -29,7 +30,7 @@ public class PatientServiceImpl implements PatientService {
 
     @Override
     public DataResult<PatientDetailedResponse> create(PatientCreateRequest request) {
-        Patient patient = patientMapper.toEntity(request);
+        Patient patient = patientMapper.createRequestToEntity(request);
         Patient savedPatient = patientRepository.save(patient);
         PatientDetailedResponse patientDetailedResponse = patientMapper.toDetailedResponse(savedPatient);
         return new SuccessDataResult<>(patientDetailedResponse, "Pasiyent uğurla yaradıldı");
@@ -57,5 +58,14 @@ public class PatientServiceImpl implements PatientService {
                 .content(patientPage.getContent().stream().map(patientMapper::toResponse).toList())
                 .build();
         return new SuccessDataResult<>(pageData, "Pasiyentlər tapıldı");
+    }
+
+    @Override
+    public DataResult<PatientDetailedResponse> updateById(UUID id, PatientUpdateRequest request) {
+        Patient existingPatient = patientRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Pasiyent tapılmadı: " + id, ErrorCode.PATIENT_NOT_FOUND));
+        Patient updatedPatient = patientMapper.updateRequestToEntity(request, existingPatient);
+        Patient savedPatient = patientRepository.save(updatedPatient);
+        return new SuccessDataResult<>(patientMapper.toDetailedResponse(savedPatient), "Pasiyent uğurla yeniləndi");
     }
 }

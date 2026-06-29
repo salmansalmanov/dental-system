@@ -1,5 +1,6 @@
 package com.salman.dentalsystem.service.concrete;
 
+import com.salman.dentalsystem.exception.custom.NotFoundException;
 import com.salman.dentalsystem.mapper.AppointmentMapper;
 import com.salman.dentalsystem.model.dto.request.AppointmentCreateRequest;
 import com.salman.dentalsystem.model.dto.response.AppointmentDetailedResponse;
@@ -8,6 +9,7 @@ import com.salman.dentalsystem.model.entity.Appointment;
 import com.salman.dentalsystem.model.entity.Doctor;
 import com.salman.dentalsystem.model.entity.Patient;
 import com.salman.dentalsystem.model.enums.EntityStatus;
+import com.salman.dentalsystem.model.enums.ErrorCode;
 import com.salman.dentalsystem.repository.AppointmentRepository;
 import com.salman.dentalsystem.result.DataResult;
 import com.salman.dentalsystem.result.PageData;
@@ -21,6 +23,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -57,5 +61,13 @@ public class AppointmentServiceImpl implements AppointmentService {
                 .content(appointmentPage.getContent().stream().map(appointmentMapper::toResponse).toList())
                 .build();
         return new SuccessDataResult<>(pageData, "Appointments found successfully");
+    }
+
+    @Override
+    public DataResult<AppointmentDetailedResponse> getById(UUID id) {
+        Appointment appointment = appointmentRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Appointment not found with ID: " + id, ErrorCode.APPOINTMENT_NOT_FOUND));
+        AppointmentDetailedResponse response = appointmentMapper.toDetailedResponse(appointment);
+        return new SuccessDataResult<>(response, "Appointment found successfully");
     }
 }

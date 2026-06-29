@@ -12,6 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/v1/appointments")
@@ -35,5 +37,12 @@ public class AppointmentController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(appointmentService.getAll(page, size));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<DataResult<AppointmentDetailedResponse>> getAppointmentById(@PathVariable UUID id) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(appointmentService.getById(id));
     }
 }

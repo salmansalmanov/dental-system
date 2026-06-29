@@ -7,8 +7,8 @@ import com.salman.dentalsystem.model.dto.request.DoctorUpdateRequest;
 import com.salman.dentalsystem.model.dto.response.DoctorDetailedResponse;
 import com.salman.dentalsystem.model.dto.response.DoctorResponse;
 import com.salman.dentalsystem.model.entity.Doctor;
+import com.salman.dentalsystem.model.enums.EntityStatus;
 import com.salman.dentalsystem.model.enums.ErrorCode;
-import com.salman.dentalsystem.model.enums.UserStatus;
 import com.salman.dentalsystem.repository.DoctorRepository;
 import com.salman.dentalsystem.result.DataResult;
 import com.salman.dentalsystem.result.PageData;
@@ -32,18 +32,18 @@ public class DoctorServiceImpl implements DoctorService {
     @Override
     public DataResult<DoctorDetailedResponse> create(DoctorCreateRequest request) {
         Doctor doctor = doctorMapper.createRequestToEntity(request);
-        doctor.setStatus(UserStatus.ACTIVE);
+        doctor.setStatus(EntityStatus.ACTIVE);
         Doctor savedDoctor = doctorRepository.save(doctor);
         DoctorDetailedResponse response = doctorMapper.toDetailedResponse(savedDoctor);
-        return new SuccessDataResult<>(response, "Həkim yaradıldı");
+        return new SuccessDataResult<>(response, "Doctor created successfully");
     }
 
     @Override
     public DataResult<DoctorDetailedResponse> getById(UUID id) {
         Doctor doctor = doctorRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Həkim tapılmadı: " + id, ErrorCode.DOCTOR_NOT_FOUND));
+                .orElseThrow(() -> new NotFoundException("Doctor not found with ID: " + id, ErrorCode.DOCTOR_NOT_FOUND));
         DoctorDetailedResponse response = doctorMapper.toDetailedResponse(doctor);
-        return new SuccessDataResult<>(response, "Həkim tapıldı");
+        return new SuccessDataResult<>(response, "Doctor found successfully");
     }
 
     @Override
@@ -59,26 +59,32 @@ public class DoctorServiceImpl implements DoctorService {
                 .size(doctorPage.getSize())
                 .content(doctorPage.getContent().stream().map(doctorMapper::toResponse).toList())
                 .build();
-        return new SuccessDataResult<>(pageData, "Həkimlər tapıldı");
+        return new SuccessDataResult<>(pageData, "Doctors found successfully");
     }
 
     @Override
     public DataResult<DoctorDetailedResponse> updateById(UUID id, DoctorUpdateRequest request) {
         Doctor existingDoctor = doctorRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Həkim tapılmadı: " + id, ErrorCode.DOCTOR_NOT_FOUND));
+                .orElseThrow(() -> new NotFoundException("Doctor not found with ID: " + id, ErrorCode.DOCTOR_NOT_FOUND));
         Doctor updatedDoctor = doctorMapper.updateRequestToEntity(request, existingDoctor);
         Doctor savedDoctor = doctorRepository.save(updatedDoctor);
         DoctorDetailedResponse response = doctorMapper.toDetailedResponse(savedDoctor);
-        return new SuccessDataResult<>(response, "Həkim yeniləndi");
+        return new SuccessDataResult<>(response, "Doctor updated successfully");
     }
 
     @Override
     public DataResult<DoctorDetailedResponse> deleteById(UUID id) {
         Doctor doctor = doctorRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Həkim tapılmadı: " + id, ErrorCode.DOCTOR_NOT_FOUND));
-        doctor.setStatus(UserStatus.DELETED);
+                .orElseThrow(() -> new NotFoundException("Doctor not found with ID: " + id, ErrorCode.DOCTOR_NOT_FOUND));
+        doctor.setStatus(EntityStatus.DELETED);
         Doctor savedDoctor = doctorRepository.save(doctor);
         DoctorDetailedResponse response = doctorMapper.toDetailedResponse(savedDoctor);
-        return new SuccessDataResult<>(response, "Həkim silindi");
+        return new SuccessDataResult<>(response, "Doctor deleted successfully");
+    }
+
+    @Override
+    public Doctor getEntity(UUID id) {
+        return doctorRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Doctor not found with ID: " + id, ErrorCode.DOCTOR_NOT_FOUND));
     }
 }

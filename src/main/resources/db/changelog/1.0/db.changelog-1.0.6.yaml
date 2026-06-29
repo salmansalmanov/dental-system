@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1.0.6-add-status-to-appointments
+      author: salmansalmanov
+      changes:
+        - addColumn:
+            tableName: appointments
+            columns:
+              - column:
+                  name: status
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false

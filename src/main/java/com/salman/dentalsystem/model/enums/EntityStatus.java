@@ -1,6 +1,6 @@
 package com.salman.dentalsystem.model.enums;
 
-public enum UserStatus {
+public enum EntityStatus {
     DELETED,
     ACTIVE,
     PENDING

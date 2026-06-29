@@ -1,0 +1,26 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1.0.5-update-appointment-date
+      author: salmansalmanov
+      changes:
+        - dropColumn:
+            tableName: appointments
+            columnName: date
+        - addColumn:
+            tableName: appointments
+            columns:
+              - column:
+                  name: appointment_date
+                  type: DATE
+                  constraints:
+                    nullable: false
+              - column:
+                  name: start_time
+                  type: TIME
+                  constraints:
+                    nullable: false
+              - column:
+                  name: end_time
+                  type: TIME
+                  constraints:
+                    nullable: false

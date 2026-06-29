@@ -1,16 +1,15 @@
 package com.salman.dentalsystem.model.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import com.salman.dentalsystem.model.enums.EntityStatus;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Entity
 @Setter
@@ -25,9 +24,14 @@ public class Appointment extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Doctor doctor;
+
+    @Enumerated(EnumType.STRING)
+    private EntityStatus status;
     private String treatment;
-    private LocalDateTime date;
+    private LocalDate appointmentDate;
+    private LocalTime startTime;
+    private LocalTime endTime;
     private BigDecimal price;
-    private BigDecimal payedAmount;
-    private BigDecimal unpaidAmount;
+    private BigDecimal payedAmount = BigDecimal.ZERO;
+    private BigDecimal unpaidAmount = BigDecimal.ZERO;
 }

@@ -4,6 +4,7 @@ import com.salman.dentalsystem.model.dto.request.DoctorCreateRequest;
 import com.salman.dentalsystem.model.dto.request.DoctorUpdateRequest;
 import com.salman.dentalsystem.model.dto.response.DoctorDetailedResponse;
 import com.salman.dentalsystem.model.dto.response.DoctorResponse;
+import com.salman.dentalsystem.model.entity.Doctor;
 import com.salman.dentalsystem.result.DataResult;
 import com.salman.dentalsystem.result.PageData;
 
@@ -19,4 +20,6 @@ public interface DoctorService {
     DataResult<DoctorDetailedResponse> updateById(UUID id, DoctorUpdateRequest request);
 
     DataResult<DoctorDetailedResponse> deleteById(UUID id);
+
+    Doctor getEntity(UUID id);
 }

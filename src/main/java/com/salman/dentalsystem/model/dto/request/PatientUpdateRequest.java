@@ -14,24 +14,24 @@ import lombok.Setter;
 @AllArgsConstructor
 public class PatientUpdateRequest {
 
-    @NotBlank(message = "Ad boş ola bilməz")
-    @Size(min = 3, max = 20, message = "Simvol sayı '3' ilə '20' arasında ola bilər")
+    @NotBlank(message = "Name cannot be blank")
+    @Size(min = 3, max = 20, message = "Name must be between 3 and 20 symbols")
     private String name;
 
-    @NotBlank(message = "Soyad boş ola bilməz")
-    @Size(min = 3, max = 20, message = "Simvol sayı '3' ilə '20' arasında ola bilər")
+    @NotBlank(message = "Surname cannot be blank")
+    @Size(min = 3, max = 20, message = "Surname must be between 3 and 20 symbols")
     private String surname;
 
-    @NotBlank(message = "Ata adı boş ola bilməz")
-    @Size(min = 3, max = 20, message = "Simvol sayı '3' ilə '20' arasında ola bilər")
+    @NotBlank(message = "Patronymic cannot be blank")
+    @Size(min = 3, max = 20, message = "Patronymic must be between 3 and 20 symbols")
     private String patronymic;
 
-    @NotBlank(message = "Telefon nömrəsi boş ola bilməz")
+    @NotBlank(message = "Phone number cannot be blank")
     @Pattern(regexp = "^\\+994\\d{9}$",
-            message = "Telefon nömrəsi +994 ilə başlamalı və 13 simvol uzunluğunda olmalıdır")
+            message = "Phone number must start with +994 and be 13 characters long")
     private String phoneNumber;
 
-    @NotBlank(message = "FİN kod boş ola bilməz")
-    @Size(min = 7, max = 7, message = "Simvol sayı yalnız '7' ola bilər")
+    @NotBlank(message = "PIN cannot be blank")
+    @Size(min = 7, max = 7, message = "PIN must be 7 characters long")
     private String pin;
 }

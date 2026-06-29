@@ -7,8 +7,8 @@ import com.salman.dentalsystem.model.dto.request.PatientUpdateRequest;
 import com.salman.dentalsystem.model.dto.response.PatientDetailedResponse;
 import com.salman.dentalsystem.model.dto.response.PatientResponse;
 import com.salman.dentalsystem.model.entity.Patient;
+import com.salman.dentalsystem.model.enums.EntityStatus;
 import com.salman.dentalsystem.model.enums.ErrorCode;
-import com.salman.dentalsystem.model.enums.UserStatus;
 import com.salman.dentalsystem.repository.PatientRepository;
 import com.salman.dentalsystem.result.DataResult;
 import com.salman.dentalsystem.result.PageData;
@@ -32,18 +32,18 @@ public class PatientServiceImpl implements PatientService {
     @Override
     public DataResult<PatientDetailedResponse> create(PatientCreateRequest request) {
         Patient patient = patientMapper.createRequestToEntity(request);
-        patient.setStatus(UserStatus.ACTIVE);
+        patient.setStatus(EntityStatus.ACTIVE);
         Patient savedPatient = patientRepository.save(patient);
         PatientDetailedResponse patientDetailedResponse = patientMapper.toDetailedResponse(savedPatient);
-        return new SuccessDataResult<>(patientDetailedResponse, "Pasiyent uğurla yaradıldı");
+        return new SuccessDataResult<>(patientDetailedResponse, "Patient created successfully");
     }
 
     @Override
     public DataResult<PatientDetailedResponse> getById(UUID id) {
         Patient foundPatient = patientRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Pasiyent tapılmadı: " + id, ErrorCode.PATIENT_NOT_FOUND));
+                .orElseThrow(() -> new NotFoundException("Patient not found with ID: " + id, ErrorCode.PATIENT_NOT_FOUND));
         PatientDetailedResponse patientDetailedResponse = patientMapper.toDetailedResponse(foundPatient);
-        return new SuccessDataResult<>(patientDetailedResponse, "Pasiyent tapıldı");
+        return new SuccessDataResult<>(patientDetailedResponse, "Patient found successfully");
     }
 
     @Override
@@ -59,24 +59,30 @@ public class PatientServiceImpl implements PatientService {
                 .size(patientPage.getSize())
                 .content(patientPage.getContent().stream().map(patientMapper::toResponse).toList())
                 .build();
-        return new SuccessDataResult<>(pageData, "Pasiyentlər tapıldı");
+        return new SuccessDataResult<>(pageData, "Patients found successfully");
     }
 
     @Override
     public DataResult<PatientDetailedResponse> updateById(UUID id, PatientUpdateRequest request) {
         Patient existingPatient = patientRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Pasiyent tapılmadı: " + id, ErrorCode.PATIENT_NOT_FOUND));
+                .orElseThrow(() -> new NotFoundException("Patient not found with ID: " + id, ErrorCode.PATIENT_NOT_FOUND));
         Patient updatedPatient = patientMapper.updateRequestToEntity(request, existingPatient);
         Patient savedPatient = patientRepository.save(updatedPatient);
-        return new SuccessDataResult<>(patientMapper.toDetailedResponse(savedPatient), "Pasiyent uğurla yeniləndi");
+        return new SuccessDataResult<>(patientMapper.toDetailedResponse(savedPatient), "Patient updated successfully");
     }
 
     @Override
     public DataResult<PatientDetailedResponse> deleteById(UUID id) {
         Patient patient = patientRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Pasiyent tapılmadı: " + id, ErrorCode.PATIENT_NOT_FOUND));
-        patient.setStatus(UserStatus.DELETED);
+                .orElseThrow(() -> new NotFoundException("Patient not found with ID: " + id, ErrorCode.PATIENT_NOT_FOUND));
+        patient.setStatus(EntityStatus.DELETED);
         Patient savedPatient = patientRepository.save(patient);
-        return new SuccessDataResult<>(patientMapper.toDetailedResponse(savedPatient), "Pasiyent uğurla silindi");
+        return new SuccessDataResult<>(patientMapper.toDetailedResponse(savedPatient), "Patient deleted successfully");
+    }
+
+    @Override
+    public Patient getEntity(UUID id) {
+        return patientRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Patient not found with ID: " + id, ErrorCode.PATIENT_NOT_FOUND));
     }
 }

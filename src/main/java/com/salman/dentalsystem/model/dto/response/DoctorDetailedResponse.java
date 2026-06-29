@@ -1,7 +1,7 @@
 package com.salman.dentalsystem.model.dto.response;
 
 import com.salman.dentalsystem.model.enums.Role;
-import com.salman.dentalsystem.model.enums.UserStatus;
+import com.salman.dentalsystem.model.enums.EntityStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,6 +20,6 @@ public class DoctorDetailedResponse {
     private String patronymic;
     private String phoneNumber;
     private String pin;
-    private UserStatus status;
+    private EntityStatus status;
     private Role role;
 }

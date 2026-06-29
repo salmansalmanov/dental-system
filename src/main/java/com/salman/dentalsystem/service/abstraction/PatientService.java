@@ -4,6 +4,7 @@ import com.salman.dentalsystem.model.dto.request.PatientCreateRequest;
 import com.salman.dentalsystem.model.dto.request.PatientUpdateRequest;
 import com.salman.dentalsystem.model.dto.response.PatientDetailedResponse;
 import com.salman.dentalsystem.model.dto.response.PatientResponse;
+import com.salman.dentalsystem.model.entity.Patient;
 import com.salman.dentalsystem.result.DataResult;
 import com.salman.dentalsystem.result.PageData;
 
@@ -19,4 +20,6 @@ public interface PatientService {
     DataResult<PatientDetailedResponse> updateById(UUID id, PatientUpdateRequest request);
 
     DataResult<PatientDetailedResponse> deleteById(UUID id);
+
+    Patient getEntity(UUID id);
 }

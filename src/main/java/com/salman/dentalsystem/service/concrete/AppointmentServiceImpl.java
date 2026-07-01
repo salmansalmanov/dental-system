@@ -41,7 +41,13 @@ public class AppointmentServiceImpl implements AppointmentService {
     public DataResult<AppointmentDetailedResponse> createAppointment(AppointmentCreateRequest request) {
         validateAppointmentTime(request.getStartTime(), request.getEndTime());
         Patient patient = patientService.getEntity(request.getPatientId());
+        if (patient.getStatus() == EntityStatus.DELETED) {
+            throw new NotFoundException("Patient not found with ID: " + request.getPatientId(), ErrorCode.PATIENT_NOT_FOUND);
+        }
         Doctor doctor = doctorService.getEntity(request.getDoctorId());
+        if (doctor.getStatus() == EntityStatus.DELETED) {
+            throw new NotFoundException("Doctor not found with ID: " + request.getDoctorId(), ErrorCode.DOCTOR_NOT_FOUND);
+        }
         Appointment appointment = appointmentMapper.createRequestToEntity(request);
         appointment.setPatient(patient);
         appointment.setDoctor(doctor);

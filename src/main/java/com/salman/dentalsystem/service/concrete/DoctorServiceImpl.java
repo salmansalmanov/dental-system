@@ -40,7 +40,7 @@ public class DoctorServiceImpl implements DoctorService {
 
     @Override
     public DataResult<DoctorDetailedResponse> getById(UUID id) {
-        Doctor doctor = doctorRepository.findById(id)
+        Doctor doctor = doctorRepository.findByIdAndStatusNot(id, EntityStatus.DELETED)
                 .orElseThrow(() -> new NotFoundException("Doctor not found with ID: " + id, ErrorCode.DOCTOR_NOT_FOUND));
         DoctorDetailedResponse response = doctorMapper.toDetailedResponse(doctor);
         return new SuccessDataResult<>(response, "Doctor found successfully");
@@ -49,7 +49,7 @@ public class DoctorServiceImpl implements DoctorService {
     @Override
     public DataResult<PageData<DoctorResponse>> getAll(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        Page<Doctor> doctorPage = doctorRepository.findAll(pageable);
+        Page<Doctor> doctorPage = doctorRepository.findAllByStatusNot(EntityStatus.DELETED, pageable);
         PageData<DoctorResponse> pageData = PageData.<DoctorResponse>builder()
                 .totalPages(doctorPage.getTotalPages())
                 .totalElements(doctorPage.getTotalElements())
@@ -64,7 +64,7 @@ public class DoctorServiceImpl implements DoctorService {
 
     @Override
     public DataResult<DoctorDetailedResponse> updateById(UUID id, DoctorUpdateRequest request) {
-        Doctor existingDoctor = doctorRepository.findById(id)
+        Doctor existingDoctor = doctorRepository.findByIdAndStatusNot(id, EntityStatus.DELETED)
                 .orElseThrow(() -> new NotFoundException("Doctor not found with ID: " + id, ErrorCode.DOCTOR_NOT_FOUND));
         Doctor updatedDoctor = doctorMapper.updateRequestToEntity(request, existingDoctor);
         Doctor savedDoctor = doctorRepository.save(updatedDoctor);

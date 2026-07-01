@@ -40,7 +40,7 @@ public class PatientServiceImpl implements PatientService {
 
     @Override
     public DataResult<PatientDetailedResponse> getById(UUID id) {
-        Patient foundPatient = patientRepository.findById(id)
+        Patient foundPatient = patientRepository.findByIdAndStatusNot(id, EntityStatus.DELETED)
                 .orElseThrow(() -> new NotFoundException("Patient not found with ID: " + id, ErrorCode.PATIENT_NOT_FOUND));
         PatientDetailedResponse patientDetailedResponse = patientMapper.toDetailedResponse(foundPatient);
         return new SuccessDataResult<>(patientDetailedResponse, "Patient found successfully");
@@ -49,7 +49,7 @@ public class PatientServiceImpl implements PatientService {
     @Override
     public DataResult<PageData<PatientResponse>> getAll(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        Page<Patient> patientPage = patientRepository.findAll(pageable);
+        Page<Patient> patientPage = patientRepository.findAllByStatusNot(EntityStatus.DELETED, pageable);
         PageData<PatientResponse> pageData = PageData.<PatientResponse>builder()
                 .totalPages(patientPage.getTotalPages())
                 .totalElements(patientPage.getTotalElements())
@@ -64,7 +64,7 @@ public class PatientServiceImpl implements PatientService {
 
     @Override
     public DataResult<PatientDetailedResponse> updateById(UUID id, PatientUpdateRequest request) {
-        Patient existingPatient = patientRepository.findById(id)
+        Patient existingPatient = patientRepository.findByIdAndStatusNot(id, EntityStatus.DELETED)
                 .orElseThrow(() -> new NotFoundException("Patient not found with ID: " + id, ErrorCode.PATIENT_NOT_FOUND));
         Patient updatedPatient = patientMapper.updateRequestToEntity(request, existingPatient);
         Patient savedPatient = patientRepository.save(updatedPatient);

@@ -51,7 +51,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Override
     public DataResult<PageData<AppointmentResponse>> getAll(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        Page<Appointment> appointmentPage = appointmentRepository.findAll(pageable);
+        Page<Appointment> appointmentPage = appointmentRepository.findAllByStatusNot(EntityStatus.DELETED, pageable);
         PageData<AppointmentResponse> pageData = PageData.<AppointmentResponse>builder()
                 .totalPages(appointmentPage.getTotalPages())
                 .totalElements(appointmentPage.getTotalElements())
@@ -66,7 +66,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     public DataResult<AppointmentDetailedResponse> getById(UUID id) {
-        Appointment appointment = appointmentRepository.findById(id)
+        Appointment appointment = appointmentRepository.findByIdAndStatusNot(id, EntityStatus.DELETED)
                 .orElseThrow(() -> new NotFoundException("Appointment not found with ID: " + id, ErrorCode.APPOINTMENT_NOT_FOUND));
         AppointmentDetailedResponse response = appointmentMapper.toDetailedResponse(appointment);
         return new SuccessDataResult<>(response, "Appointment found successfully");
@@ -74,7 +74,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     public DataResult<AppointmentDetailedResponse> updateById(UUID id, AppointmentUpdateRequest request) {
-        Appointment existingAppointment = appointmentRepository.findById(id)
+        Appointment existingAppointment = appointmentRepository.findByIdAndStatusNot(id, EntityStatus.DELETED)
                 .orElseThrow(() -> new NotFoundException("Appointment not found with ID: " + id, ErrorCode.APPOINTMENT_NOT_FOUND));
         Appointment updatedAppointment = appointmentMapper.updateRequestToEntity(request, existingAppointment);
         if (!existingAppointment.getDoctor().getId().equals(request.getDoctorId())) {

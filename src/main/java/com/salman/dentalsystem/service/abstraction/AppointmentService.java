@@ -17,4 +17,6 @@ public interface AppointmentService {
     DataResult<AppointmentDetailedResponse> getById(UUID id);
 
     DataResult<AppointmentDetailedResponse> updateById(UUID id, AppointmentUpdateRequest request);
+
+    DataResult<AppointmentDetailedResponse> deleteById(UUID id);
 }

@@ -56,4 +56,11 @@ public class AppointmentController {
                 .status(HttpStatus.OK)
                 .body(appointmentService.updateById(id, request));
     }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<DataResult<AppointmentDetailedResponse>> deleteAppointment(@PathVariable UUID id) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(appointmentService.deleteById(id));
+    }
 }

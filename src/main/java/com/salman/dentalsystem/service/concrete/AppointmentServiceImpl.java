@@ -89,4 +89,14 @@ public class AppointmentServiceImpl implements AppointmentService {
         AppointmentDetailedResponse response = appointmentMapper.toDetailedResponse(savedAppointment);
         return new SuccessDataResult<>(response, "Appointment updated successfully");
     }
+
+    @Override
+    public DataResult<AppointmentDetailedResponse> deleteById(UUID id) {
+        Appointment appointment = appointmentRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Appointment not found with ID: " + id, ErrorCode.APPOINTMENT_NOT_FOUND));
+        appointment.setStatus(EntityStatus.DELETED);
+        Appointment savedAppointment = appointmentRepository.save(appointment);
+        AppointmentDetailedResponse response = appointmentMapper.toDetailedResponse(savedAppointment);
+        return new SuccessDataResult<>(response, "Appointment deleted successfully");
+    }
 }

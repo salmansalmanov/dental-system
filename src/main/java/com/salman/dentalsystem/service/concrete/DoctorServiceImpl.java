@@ -83,6 +83,32 @@ public class DoctorServiceImpl implements DoctorService {
     }
 
     @Override
+    public DataResult<PageData<DoctorResponse>> getAllDeleted(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<Doctor> doctorPage = doctorRepository.findAllByStatus(EntityStatus.DELETED, pageable);
+        PageData<DoctorResponse> pageData = PageData.<DoctorResponse>builder()
+                .totalPages(doctorPage.getTotalPages())
+                .totalElements(doctorPage.getTotalElements())
+                .firstPage(doctorPage.isFirst())
+                .lastPage(doctorPage.isLast())
+                .page(doctorPage.getNumber())
+                .size(doctorPage.getSize())
+                .content(doctorPage.getContent().stream().map(doctorMapper::toResponse).toList())
+                .build();
+        return new SuccessDataResult<>(pageData, "Deleted doctors found successfully");
+    }
+
+    @Override
+    public DataResult<DoctorDetailedResponse> activateById(UUID id) {
+        Doctor doctor = doctorRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Deleted doctor not found with ID: " + id, ErrorCode.DOCTOR_NOT_FOUND));
+        doctor.setStatus(EntityStatus.ACTIVE);
+        Doctor savedDoctor = doctorRepository.save(doctor);
+        DoctorDetailedResponse response = doctorMapper.toDetailedResponse(savedDoctor);
+        return new SuccessDataResult<>(response, "Doctor activated successfully");
+    }
+
+    @Override
     public Doctor getEntity(UUID id) {
         return doctorRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Doctor not found with ID: " + id, ErrorCode.DOCTOR_NOT_FOUND));

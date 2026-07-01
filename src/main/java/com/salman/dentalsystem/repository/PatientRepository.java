@@ -13,4 +13,6 @@ public interface PatientRepository extends JpaRepository<Patient, UUID> {
     Page<Patient> findAllByStatusNot(EntityStatus status, Pageable pageable);
 
     Optional<Patient> findByIdAndStatusNot(UUID id, EntityStatus status);
+
+    Page<Patient> findAllByStatus(EntityStatus status, Pageable pageable);
 }

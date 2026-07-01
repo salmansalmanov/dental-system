@@ -24,4 +24,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID> 
             WHERE a.id = :id AND a.status <> :status
             """)
     Optional<Appointment> findByIdAndStatusNot(@Param("id") UUID id, @Param("status") EntityStatus status);
+
+    @EntityGraph(attributePaths = "patient")
+    Page<Appointment> findAllByStatus(EntityStatus status, Pageable pageable);
 }

@@ -30,6 +30,16 @@ public class AppointmentController {
                 .body(appointmentService.createAppointment(request));
     }
 
+    @GetMapping("/deleted")
+    public ResponseEntity<DataResult<PageData<AppointmentResponse>>> getAllDeletedAppointments(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(appointmentService.getAllDeleted(page, size));
+    }
+
     @GetMapping
     public ResponseEntity<DataResult<PageData<AppointmentResponse>>> getAllAppointments(
             @RequestParam(defaultValue = "0") int page,
@@ -62,5 +72,12 @@ public class AppointmentController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(appointmentService.deleteById(id));
+    }
+
+    @PatchMapping("/{id}/activate")
+    public ResponseEntity<DataResult<AppointmentDetailedResponse>> activateAppointment(@PathVariable UUID id) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(appointmentService.activateById(id));
     }
 }

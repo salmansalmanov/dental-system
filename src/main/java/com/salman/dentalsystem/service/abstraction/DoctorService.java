@@ -21,5 +21,9 @@ public interface DoctorService {
 
     DataResult<DoctorDetailedResponse> deleteById(UUID id);
 
+    DataResult<PageData<DoctorResponse>> getAllDeleted(int page, int size);
+
+    DataResult<DoctorDetailedResponse> activateById(UUID id);
+
     Doctor getEntity(UUID id);
 }

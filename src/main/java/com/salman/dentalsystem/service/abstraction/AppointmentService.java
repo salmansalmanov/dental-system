@@ -19,4 +19,8 @@ public interface AppointmentService {
     DataResult<AppointmentDetailedResponse> updateById(UUID id, AppointmentUpdateRequest request);
 
     DataResult<AppointmentDetailedResponse> deleteById(UUID id);
+
+    DataResult<PageData<AppointmentResponse>> getAllDeleted(int page, int size);
+
+    DataResult<AppointmentDetailedResponse> activateById(UUID id);
 }

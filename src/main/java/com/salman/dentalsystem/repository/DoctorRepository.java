@@ -13,4 +13,6 @@ public interface DoctorRepository extends JpaRepository<Doctor, UUID> {
     Page<Doctor> findAllByStatusNot(EntityStatus status, Pageable pageable);
 
     Optional<Doctor> findByIdAndStatusNot(UUID id, EntityStatus status);
+
+    Page<Doctor> findAllByStatus(EntityStatus status, Pageable pageable);
 }

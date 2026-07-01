@@ -115,4 +115,30 @@ public class AppointmentServiceImpl implements AppointmentService {
         AppointmentDetailedResponse response = appointmentMapper.toDetailedResponse(savedAppointment);
         return new SuccessDataResult<>(response, "Appointment deleted successfully");
     }
+
+    @Override
+    public DataResult<PageData<AppointmentResponse>> getAllDeleted(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<Appointment> appointmentPage = appointmentRepository.findAllByStatus(EntityStatus.DELETED, pageable);
+        PageData<AppointmentResponse> pageData = PageData.<AppointmentResponse>builder()
+                .totalPages(appointmentPage.getTotalPages())
+                .totalElements(appointmentPage.getTotalElements())
+                .firstPage(appointmentPage.isFirst())
+                .lastPage(appointmentPage.isLast())
+                .page(appointmentPage.getNumber())
+                .size(appointmentPage.getSize())
+                .content(appointmentPage.getContent().stream().map(appointmentMapper::toResponse).toList())
+                .build();
+        return new SuccessDataResult<>(pageData, "Deleted appointments found successfully");
+    }
+
+    @Override
+    public DataResult<AppointmentDetailedResponse> activateById(UUID id) {
+        Appointment appointment = appointmentRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Deleted appointment not found with ID: " + id, ErrorCode.APPOINTMENT_NOT_FOUND));
+        appointment.setStatus(EntityStatus.ACTIVE);
+        Appointment savedAppointment = appointmentRepository.save(appointment);
+        AppointmentDetailedResponse response = appointmentMapper.toDetailedResponse(savedAppointment);
+        return new SuccessDataResult<>(response, "Appointment activated successfully");
+    }
 }

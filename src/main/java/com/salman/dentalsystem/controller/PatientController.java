@@ -28,6 +28,16 @@ public class PatientController {
                 .body(patientService.create(request));
     }
 
+    @GetMapping("/deleted")
+    public ResponseEntity<DataResult<PageData<PatientResponse>>> getAllDeletedPatients(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(patientService.getAllDeleted(page, size));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<DataResult<PatientDetailedResponse>> getPatientById(@PathVariable UUID id) {
         return ResponseEntity
@@ -60,5 +70,12 @@ public class PatientController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(patientService.deleteById(id));
+    }
+
+    @PatchMapping("/{id}/activate")
+    public ResponseEntity<DataResult<PatientDetailedResponse>> activatePatient(@PathVariable UUID id) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(patientService.activateById(id));
     }
 }

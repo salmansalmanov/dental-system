@@ -28,6 +28,16 @@ public class DoctorController {
                 .body(doctorService.create(request));
     }
 
+    @GetMapping("/deleted")
+    public ResponseEntity<DataResult<PageData<DoctorResponse>>> getAllDeleted(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(doctorService.getAllDeleted(page, size));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<DataResult<DoctorDetailedResponse>> getDoctorById(@PathVariable UUID id) {
         return ResponseEntity.status(HttpStatus.OK)
@@ -59,5 +69,12 @@ public class DoctorController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(doctorService.deleteById(id));
+    }
+
+    @PatchMapping("/{id}/activate")
+    public ResponseEntity<DataResult<DoctorDetailedResponse>> activateDoctor(@PathVariable UUID id) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(doctorService.activateById(id));
     }
 }

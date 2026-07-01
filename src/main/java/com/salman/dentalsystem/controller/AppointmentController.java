@@ -57,7 +57,7 @@ public class AppointmentController {
                 .body(appointmentService.updateById(id, request));
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<DataResult<AppointmentDetailedResponse>> deleteAppointment(@PathVariable UUID id) {
         return ResponseEntity
                 .status(HttpStatus.OK)

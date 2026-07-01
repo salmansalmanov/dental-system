@@ -1,5 +1,6 @@
 package com.salman.dentalsystem.service.concrete;
 
+import com.salman.dentalsystem.exception.custom.InvalidAppointmentTimeException;
 import com.salman.dentalsystem.exception.custom.NotFoundException;
 import com.salman.dentalsystem.mapper.AppointmentMapper;
 import com.salman.dentalsystem.model.dto.request.AppointmentCreateRequest;
@@ -25,6 +26,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalTime;
 import java.util.UUID;
 
 @Service
@@ -37,6 +39,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     public DataResult<AppointmentDetailedResponse> createAppointment(AppointmentCreateRequest request) {
+        validateAppointmentTime(request.getStartTime(), request.getEndTime());
         Patient patient = patientService.getEntity(request.getPatientId());
         Doctor doctor = doctorService.getEntity(request.getDoctorId());
         Appointment appointment = appointmentMapper.createRequestToEntity(request);
@@ -74,6 +77,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     public DataResult<AppointmentDetailedResponse> updateById(UUID id, AppointmentUpdateRequest request) {
+        validateAppointmentTime(request.getStartTime(), request.getEndTime());
         Appointment existingAppointment = appointmentRepository.findByIdAndStatusNot(id, EntityStatus.DELETED)
                 .orElseThrow(() -> new NotFoundException("Appointment not found with ID: " + id, ErrorCode.APPOINTMENT_NOT_FOUND));
         Appointment updatedAppointment = appointmentMapper.updateRequestToEntity(request, existingAppointment);
@@ -88,6 +92,12 @@ public class AppointmentServiceImpl implements AppointmentService {
         Appointment savedAppointment = appointmentRepository.save(updatedAppointment);
         AppointmentDetailedResponse response = appointmentMapper.toDetailedResponse(savedAppointment);
         return new SuccessDataResult<>(response, "Appointment updated successfully");
+    }
+
+    private void validateAppointmentTime(LocalTime startTime, LocalTime endTime) {
+        if (!endTime.isAfter(startTime)) {
+            throw new InvalidAppointmentTimeException("End time must be after start time.", ErrorCode.INVALID_APPOINTMENT_TIME);
+        }
     }
 
     @Override

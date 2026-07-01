@@ -1,5 +1,6 @@
 package com.salman.dentalsystem.exception.handler;
 
+import com.salman.dentalsystem.exception.custom.InvalidAppointmentTimeException;
 import com.salman.dentalsystem.exception.custom.NotFoundException;
 import com.salman.dentalsystem.model.enums.ErrorCode;
 import com.salman.dentalsystem.result.ErrorDataResult;
@@ -19,6 +20,13 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<ErrorResult> handle(NotFoundException ex) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResult(ex.getMessage(), ex.getCode()));
+    }
+
+    @ExceptionHandler(InvalidAppointmentTimeException.class)
+    public ResponseEntity<ErrorResult> handle(InvalidAppointmentTimeException ex) {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorResult(ex.getMessage(), ex.getCode()));

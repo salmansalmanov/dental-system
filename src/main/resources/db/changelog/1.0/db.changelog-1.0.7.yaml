@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1.0.7-rename-column-name-in-appointments
+      author: salmansalmanov
+      changes:
+        - renameColumn:
+            tableName: appointments
+            oldColumnName: payed_amount
+            newColumnName: paid_amount

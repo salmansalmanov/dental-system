@@ -21,6 +21,6 @@ public class AppointmentDetailedResponse {
     private LocalTime startTime;
     private LocalTime endTime;
     private BigDecimal price;
-    private BigDecimal payedAmount;
+    private BigDecimal paidAmount;
     private BigDecimal unpaidAmount;
 }

@@ -32,6 +32,5 @@ public class Appointment extends BaseEntity {
     private LocalTime startTime;
     private LocalTime endTime;
     private BigDecimal price;
-    private BigDecimal payedAmount = BigDecimal.ZERO;
-    private BigDecimal unpaidAmount = BigDecimal.ZERO;
+    private BigDecimal paidAmount = BigDecimal.ZERO;
 }

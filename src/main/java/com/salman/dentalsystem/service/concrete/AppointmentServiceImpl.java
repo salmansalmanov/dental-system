@@ -3,6 +3,7 @@ package com.salman.dentalsystem.service.concrete;
 import com.salman.dentalsystem.exception.custom.NotFoundException;
 import com.salman.dentalsystem.mapper.AppointmentMapper;
 import com.salman.dentalsystem.model.dto.request.AppointmentCreateRequest;
+import com.salman.dentalsystem.model.dto.request.AppointmentUpdateRequest;
 import com.salman.dentalsystem.model.dto.response.AppointmentDetailedResponse;
 import com.salman.dentalsystem.model.dto.response.AppointmentResponse;
 import com.salman.dentalsystem.model.entity.Appointment;
@@ -69,5 +70,23 @@ public class AppointmentServiceImpl implements AppointmentService {
                 .orElseThrow(() -> new NotFoundException("Appointment not found with ID: " + id, ErrorCode.APPOINTMENT_NOT_FOUND));
         AppointmentDetailedResponse response = appointmentMapper.toDetailedResponse(appointment);
         return new SuccessDataResult<>(response, "Appointment found successfully");
+    }
+
+    @Override
+    public DataResult<AppointmentDetailedResponse> updateById(UUID id, AppointmentUpdateRequest request) {
+        Appointment existingAppointment = appointmentRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Appointment not found with ID: " + id, ErrorCode.APPOINTMENT_NOT_FOUND));
+        Appointment updatedAppointment = appointmentMapper.updateRequestToEntity(request, existingAppointment);
+        if (!existingAppointment.getDoctor().getId().equals(request.getDoctorId())) {
+            Doctor doctor = doctorService.getEntity(request.getDoctorId());
+            updatedAppointment.setDoctor(doctor);
+        }
+        if (!existingAppointment.getPatient().getId().equals(request.getPatientId())) {
+            Patient patient = patientService.getEntity(request.getPatientId());
+            updatedAppointment.setPatient(patient);
+        }
+        Appointment savedAppointment = appointmentRepository.save(updatedAppointment);
+        AppointmentDetailedResponse response = appointmentMapper.toDetailedResponse(savedAppointment);
+        return new SuccessDataResult<>(response, "Appointment updated successfully");
     }
 }

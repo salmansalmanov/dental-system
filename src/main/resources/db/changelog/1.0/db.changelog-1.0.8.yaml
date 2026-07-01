@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1.0.8-drop-unpaid-amount-in-appointments
+      author: salmansalmanov
+      changes:
+        - dropColumn:
+            tableName: appointments
+            columnName: unpaid_amount

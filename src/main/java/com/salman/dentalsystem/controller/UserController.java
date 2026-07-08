@@ -40,7 +40,7 @@ public class UserController {
     @GetMapping
     public ResponseEntity<DataResult<PageData<UserResponse>>> getAllUsers(
             @RequestParam(required = false) String search,
-            @RequestParam(required = false)EntityStatus status,
+            @RequestParam(required = false) EntityStatus status,
             @RequestParam(required = false) Role role,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size

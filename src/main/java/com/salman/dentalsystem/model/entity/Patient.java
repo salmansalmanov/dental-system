@@ -1,14 +1,14 @@
 package com.salman.dentalsystem.model.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import com.salman.dentalsystem.model.enums.EntityStatus;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Setter
@@ -16,8 +16,13 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "patients")
-public class Patient extends User {
+public class Patient extends BaseEntity {
+    private String name;
+    private String surname;
+    private String patronymic;
+    private String phoneNumber;
+    private String pin;
 
-    @OneToMany(mappedBy = "patient")
-    private List<Appointment> appointments;
+    @Enumerated(EnumType.STRING)
+    private EntityStatus status;
 }

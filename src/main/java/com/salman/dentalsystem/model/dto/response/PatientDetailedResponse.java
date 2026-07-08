@@ -21,5 +21,4 @@ public class PatientDetailedResponse {
     private String phoneNumber;
     private String pin;
     private EntityStatus status;
-    private Role role;
 }

@@ -14,8 +14,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "users")
-@Inheritance(strategy = InheritanceType.JOINED)
-public abstract class User extends BaseEntity {
+public class User extends BaseEntity {
     private String name;
     private String surname;
     private String patronymic;

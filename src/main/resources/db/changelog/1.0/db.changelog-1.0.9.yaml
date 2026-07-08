@@ -1,0 +1,62 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1.0.9-modify-patients
+      author: salmansalmanov
+      changes:
+        - dropForeignKeyConstraint:
+            baseTableName: appointments
+            constraintName: fk_appointments_id_patient_id
+        - dropTable:
+            tableName: patients
+        - createTable:
+            tableName: patients
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: surname
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: patronymic
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: phone_number
+                  type: VARCHAR(13)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: pin
+                  type: VARCHAR(7)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: status
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false

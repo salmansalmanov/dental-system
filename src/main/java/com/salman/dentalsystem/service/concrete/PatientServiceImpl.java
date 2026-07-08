@@ -1,5 +1,6 @@
 package com.salman.dentalsystem.service.concrete;
 
+import com.salman.dentalsystem.exception.custom.InvalidInputException;
 import com.salman.dentalsystem.exception.custom.NotFoundException;
 import com.salman.dentalsystem.mapper.PatientMapper;
 import com.salman.dentalsystem.model.dto.request.PatientCreateRequest;
@@ -47,9 +48,9 @@ public class PatientServiceImpl implements PatientService {
     }
 
     @Override
-    public DataResult<PageData<PatientResponse>> getAll(int page, int size) {
+    public DataResult<PageData<PatientResponse>> getAll(String search, EntityStatus status, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        Page<Patient> patientPage = patientRepository.findAllByStatusNot(EntityStatus.DELETED, pageable);
+        Page<Patient> patientPage = patientRepository.findAllFiltered(search, status, pageable);
         PageData<PatientResponse> pageData = PageData.<PatientResponse>builder()
                 .totalPages(patientPage.getTotalPages())
                 .totalElements(patientPage.getTotalElements())
@@ -100,14 +101,11 @@ public class PatientServiceImpl implements PatientService {
     public DataResult<PatientDetailedResponse> activateById(UUID id) {
         Patient patient = patientRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Deleted patient not found with ID: " + id, ErrorCode.PATIENT_NOT_FOUND));
+        if (patient.getStatus() == EntityStatus.ACTIVE) {
+            throw new InvalidInputException("Patient is already active", ErrorCode.PATIENT_ALREADY_ACTIVE);
+        }
         patient.setStatus(EntityStatus.ACTIVE);
         Patient savedPatient = patientRepository.save(patient);
         return new SuccessDataResult<>(patientMapper.toDetailedResponse(savedPatient), "Patient activated successfully");
-    }
-
-    @Override
-    public Patient getEntity(UUID id) {
-        return patientRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Patient not found with ID: " + id, ErrorCode.PATIENT_NOT_FOUND));
     }
 }

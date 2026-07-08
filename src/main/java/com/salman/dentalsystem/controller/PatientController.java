@@ -4,6 +4,7 @@ import com.salman.dentalsystem.model.dto.request.PatientCreateRequest;
 import com.salman.dentalsystem.model.dto.request.PatientUpdateRequest;
 import com.salman.dentalsystem.model.dto.response.PatientDetailedResponse;
 import com.salman.dentalsystem.model.dto.response.PatientResponse;
+import com.salman.dentalsystem.model.enums.EntityStatus;
 import com.salman.dentalsystem.result.DataResult;
 import com.salman.dentalsystem.result.PageData;
 import com.salman.dentalsystem.service.abstraction.PatientService;
@@ -47,12 +48,14 @@ public class PatientController {
 
     @GetMapping
     public ResponseEntity<DataResult<PageData<PatientResponse>>> getAllPatients(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) EntityStatus status,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(patientService.getAll(page, size));
+                .body(patientService.getAll(search, status, page, size));
     }
 
     @PutMapping("/{id}")

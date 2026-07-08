@@ -5,6 +5,7 @@ import com.salman.dentalsystem.model.dto.request.UserUpdateRequest;
 import com.salman.dentalsystem.model.dto.response.UserDetailedResponse;
 import com.salman.dentalsystem.model.dto.response.UserResponse;
 import com.salman.dentalsystem.model.entity.User;
+import com.salman.dentalsystem.model.enums.EntityStatus;
 import com.salman.dentalsystem.model.enums.Role;
 import com.salman.dentalsystem.result.DataResult;
 import com.salman.dentalsystem.result.PageData;
@@ -16,7 +17,7 @@ public interface UserService {
 
     DataResult<UserDetailedResponse> getById(UUID id);
 
-    DataResult<PageData<UserResponse>> getAll(String search, Role role, int page, int size);
+    DataResult<PageData<UserResponse>> getAll(String search, EntityStatus status, Role role, int page, int size);
 
     DataResult<UserDetailedResponse> updateById(UUID id, UserUpdateRequest request);
 

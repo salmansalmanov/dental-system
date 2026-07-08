@@ -4,6 +4,7 @@ import com.salman.dentalsystem.model.dto.request.UserCreateRequest;
 import com.salman.dentalsystem.model.dto.request.UserUpdateRequest;
 import com.salman.dentalsystem.model.dto.response.UserDetailedResponse;
 import com.salman.dentalsystem.model.dto.response.UserResponse;
+import com.salman.dentalsystem.model.enums.EntityStatus;
 import com.salman.dentalsystem.model.enums.Role;
 import com.salman.dentalsystem.result.DataResult;
 import com.salman.dentalsystem.result.PageData;
@@ -39,13 +40,14 @@ public class UserController {
     @GetMapping
     public ResponseEntity<DataResult<PageData<UserResponse>>> getAllUsers(
             @RequestParam(required = false) String search,
+            @RequestParam(required = false)EntityStatus status,
             @RequestParam(required = false) Role role,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(userService.getAll(search, role, page, size));
+                .body(userService.getAll(search, status, role, page, size));
     }
 
     @PutMapping("/{id}")

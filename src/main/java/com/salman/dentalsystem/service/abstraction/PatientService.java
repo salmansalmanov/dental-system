@@ -5,6 +5,7 @@ import com.salman.dentalsystem.model.dto.request.PatientUpdateRequest;
 import com.salman.dentalsystem.model.dto.response.PatientDetailedResponse;
 import com.salman.dentalsystem.model.dto.response.PatientResponse;
 import com.salman.dentalsystem.model.entity.Patient;
+import com.salman.dentalsystem.model.enums.EntityStatus;
 import com.salman.dentalsystem.result.DataResult;
 import com.salman.dentalsystem.result.PageData;
 
@@ -15,7 +16,7 @@ public interface PatientService {
 
     DataResult<PatientDetailedResponse> getById(UUID id);
 
-    DataResult<PageData<PatientResponse>> getAll(int page, int size);
+    DataResult<PageData<PatientResponse>> getAll(String search, EntityStatus status, int page, int size);
 
     DataResult<PatientDetailedResponse> updateById(UUID id, PatientUpdateRequest request);
 
@@ -24,6 +25,4 @@ public interface PatientService {
     DataResult<PageData<PatientResponse>> getAllDeleted(int page, int size);
 
     DataResult<PatientDetailedResponse> activateById(UUID id);
-
-    Patient getEntity(UUID id);
 }

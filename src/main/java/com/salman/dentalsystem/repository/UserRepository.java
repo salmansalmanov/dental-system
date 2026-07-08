@@ -19,8 +19,8 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     @Query("""
             SELECT u
             FROM User u
-            WHERE u.status <> :deletedStatus
-              AND (:role IS NULL OR u.role = :role)
+            WHERE (:role IS NULL OR u.role = :role)
+              AND (:status IS NULL OR u.status = :status)
               AND (
                    :search IS NULL
                    OR LOWER(u.name) LIKE CONCAT('%', LOWER(CAST(:search AS string)), '%')
@@ -32,8 +32,8 @@ public interface UserRepository extends JpaRepository<User, UUID> {
             """)
     Page<User> findAllFiltered(
             @Param("search") String search,
+            @Param("status") EntityStatus status,
             @Param("role") Role role,
-            @Param("deletedStatus") EntityStatus deletedStatus,
             Pageable pageable
     );
 }

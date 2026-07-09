@@ -1,6 +1,7 @@
 package com.salman.dentalsystem.service.concrete;
 
 import com.salman.dentalsystem.exception.custom.InvalidInputException;
+import com.salman.dentalsystem.exception.custom.NotFoundException;
 import com.salman.dentalsystem.mapper.AppointmentMapper;
 import com.salman.dentalsystem.model.dto.request.AppointmentCreateRequest;
 import com.salman.dentalsystem.model.dto.response.AppointmentDetailedResponse;
@@ -17,6 +18,8 @@ import com.salman.dentalsystem.service.abstraction.PatientService;
 import com.salman.dentalsystem.service.abstraction.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -42,6 +45,14 @@ public class AppointmentServiceImpl implements AppointmentService {
         Appointment savedAppointment = appointmentRepository.save(appointment);
         AppointmentDetailedResponse response = appointmentMapper.toDetailedResponse(savedAppointment);
         return new SuccessDataResult<>(response, "Appointment created successfully");
+    }
+
+    @Override
+    public DataResult<AppointmentDetailedResponse> getById(UUID id) {
+        Appointment appointment = appointmentRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Appointment not found with ID: " + id, ErrorCode.APPOINTMENT_NOT_FOUND));
+        AppointmentDetailedResponse response = appointmentMapper.toDetailedResponse(appointment);
+        return new SuccessDataResult<>(response, "Appointment found successfully");
     }
 
     private void validateDentistAvailability(AppointmentCreateRequest request) {

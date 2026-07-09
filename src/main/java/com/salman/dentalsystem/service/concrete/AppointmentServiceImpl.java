@@ -5,6 +5,7 @@ import com.salman.dentalsystem.exception.custom.NotFoundException;
 import com.salman.dentalsystem.mapper.AppointmentMapper;
 import com.salman.dentalsystem.model.dto.request.AppointmentCreateRequest;
 import com.salman.dentalsystem.model.dto.response.AppointmentDetailedResponse;
+import com.salman.dentalsystem.model.dto.response.AppointmentResponse;
 import com.salman.dentalsystem.model.entity.Appointment;
 import com.salman.dentalsystem.model.entity.Patient;
 import com.salman.dentalsystem.model.entity.User;
@@ -12,11 +13,16 @@ import com.salman.dentalsystem.model.enums.EntityStatus;
 import com.salman.dentalsystem.model.enums.ErrorCode;
 import com.salman.dentalsystem.repository.AppointmentRepository;
 import com.salman.dentalsystem.result.DataResult;
+import com.salman.dentalsystem.result.PageData;
 import com.salman.dentalsystem.result.SuccessDataResult;
 import com.salman.dentalsystem.service.abstraction.AppointmentService;
 import com.salman.dentalsystem.service.abstraction.PatientService;
 import com.salman.dentalsystem.service.abstraction.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -37,7 +43,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         validateDentistAvailability(request);
         validatePatientAvailability(request);
         User dentist = userService.getDentistById(request.getDentistId());
-        Patient patient = patientService.getPatientById(request.getPatientId());
+        Patient patient = patientService.getActivePatientById(request.getPatientId());
         Appointment appointment = appointmentMapper.createRequestToEntity(request);
         appointment.setPatient(patient);
         appointment.setDentist(dentist);
@@ -53,6 +59,23 @@ public class AppointmentServiceImpl implements AppointmentService {
                 .orElseThrow(() -> new NotFoundException("Appointment not found with ID: " + id, ErrorCode.APPOINTMENT_NOT_FOUND));
         AppointmentDetailedResponse response = appointmentMapper.toDetailedResponse(appointment);
         return new SuccessDataResult<>(response, "Appointment found successfully");
+    }
+
+    @Override
+    public DataResult<PageData<AppointmentResponse>> getAllByPatientId(UUID patientId, int page, int size) {
+        Patient patient = patientService.getPatientById(patientId);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<Appointment> appointmentPage = appointmentRepository.findAllByPatientId(patient.getId(), pageable);
+        PageData<AppointmentResponse> pageData = new PageData<>(
+                appointmentPage.getTotalPages(),
+                appointmentPage.getTotalElements(),
+                appointmentPage.isFirst(),
+                appointmentPage.isLast(),
+                appointmentPage.getNumber(),
+                appointmentPage.getSize(),
+                appointmentPage.getContent().stream().map(appointmentMapper::toResponse).toList()
+        );
+        return new SuccessDataResult<>(pageData, "Appointments found successfully");
     }
 
     private void validateDentistAvailability(AppointmentCreateRequest request) {

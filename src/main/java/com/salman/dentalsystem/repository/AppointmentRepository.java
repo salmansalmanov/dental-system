@@ -2,6 +2,8 @@ package com.salman.dentalsystem.repository;
 
 import com.salman.dentalsystem.model.entity.Appointment;
 import org.jspecify.annotations.NullMarked;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -28,4 +30,6 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID> 
     @NullMarked
     @EntityGraph(attributePaths = "dentist")
     Optional<Appointment> findById(UUID id);
+
+    Page<Appointment> findAllByPatientId(UUID patientId, Pageable pageable);
 }

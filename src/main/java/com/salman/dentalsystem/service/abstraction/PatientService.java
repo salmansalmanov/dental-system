@@ -26,5 +26,7 @@ public interface PatientService {
 
     DataResult<PatientDetailedResponse> activateById(UUID id);
 
+    Patient getActivePatientById(UUID id);
+
     Patient getPatientById(UUID id);
 }

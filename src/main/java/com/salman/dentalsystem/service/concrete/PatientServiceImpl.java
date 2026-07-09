@@ -110,8 +110,14 @@ public class PatientServiceImpl implements PatientService {
     }
 
     @Override
-    public Patient getPatientById(UUID id) {
+    public Patient getActivePatientById(UUID id) {
         return patientRepository.findByIdAndStatus(id, EntityStatus.ACTIVE)
+                .orElseThrow(() -> new NotFoundException("Patient not found with ID: " + id, ErrorCode.PATIENT_NOT_FOUND));
+    }
+
+    @Override
+    public Patient getPatientById(UUID id) {
+        return patientRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Patient not found with ID: " + id, ErrorCode.PATIENT_NOT_FOUND));
     }
 }

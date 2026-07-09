@@ -1,7 +1,6 @@
 package com.salman.dentalsystem.repository;
 
 import com.salman.dentalsystem.model.entity.Patient;
-import com.salman.dentalsystem.model.entity.User;
 import com.salman.dentalsystem.model.enums.EntityStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,7 +12,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface PatientRepository extends JpaRepository<Patient, UUID> {
-    Optional<Patient> findByIdAndStatusNot(UUID id, EntityStatus status);
+    Optional<Patient> findByIdAndStatus(UUID id, EntityStatus status);
 
     Page<Patient> findAllByStatus(EntityStatus status, Pageable pageable);
 

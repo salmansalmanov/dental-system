@@ -36,4 +36,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
             @Param("role") Role role,
             Pageable pageable
     );
+
+    Optional<User> findByIdAndRoleAndStatus(UUID id, Role role, EntityStatus status);
 }

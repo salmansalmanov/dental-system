@@ -49,7 +49,7 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(new ErrorDataResult<>(errors, "Validasiya xətası", ErrorCode.VALIDATION_ERROR));
+                .body(new ErrorDataResult<>(errors, "Validation Error", ErrorCode.VALIDATION_ERROR));
     }
 
     @ExceptionHandler(Exception.class)

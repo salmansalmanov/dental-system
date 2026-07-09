@@ -24,4 +24,6 @@ public interface UserService {
     DataResult<UserDetailedResponse> deleteById(UUID id);
 
     DataResult<UserDetailedResponse> activateById(UUID id);
+
+    User getDentistById(UUID id);
 }

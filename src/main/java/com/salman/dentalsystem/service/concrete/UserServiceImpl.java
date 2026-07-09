@@ -93,4 +93,10 @@ public class UserServiceImpl implements UserService {
         User savedUser = userRepository.save(user);
         return new SuccessDataResult<>(userMapper.toDetailedResponse(savedUser), "User activated successfully");
     }
+
+    @Override
+    public User getDentistById(UUID id) {
+        return userRepository.findByIdAndRoleAndStatus(id, Role.DENTIST, EntityStatus.ACTIVE)
+                .orElseThrow(() -> new NotFoundException("User not found with ID: " + id, ErrorCode.USER_NOT_FOUND));
+    }
 }

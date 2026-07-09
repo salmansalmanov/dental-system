@@ -41,7 +41,7 @@ public class PatientServiceImpl implements PatientService {
 
     @Override
     public DataResult<PatientDetailedResponse> getById(UUID id) {
-        Patient foundPatient = patientRepository.findByIdAndStatusNot(id, EntityStatus.DELETED)
+        Patient foundPatient = patientRepository.findByIdAndStatus(id, EntityStatus.ACTIVE)
                 .orElseThrow(() -> new NotFoundException("Patient not found with ID: " + id, ErrorCode.PATIENT_NOT_FOUND));
         PatientDetailedResponse patientDetailedResponse = patientMapper.toDetailedResponse(foundPatient);
         return new SuccessDataResult<>(patientDetailedResponse, "Patient found successfully");
@@ -65,7 +65,7 @@ public class PatientServiceImpl implements PatientService {
 
     @Override
     public DataResult<PatientDetailedResponse> updateById(UUID id, PatientUpdateRequest request) {
-        Patient existingPatient = patientRepository.findByIdAndStatusNot(id, EntityStatus.DELETED)
+        Patient existingPatient = patientRepository.findByIdAndStatus(id, EntityStatus.ACTIVE)
                 .orElseThrow(() -> new NotFoundException("Patient not found with ID: " + id, ErrorCode.PATIENT_NOT_FOUND));
         Patient updatedPatient = patientMapper.updateRequestToEntity(request, existingPatient);
         Patient savedPatient = patientRepository.save(updatedPatient);
@@ -107,5 +107,11 @@ public class PatientServiceImpl implements PatientService {
         patient.setStatus(EntityStatus.ACTIVE);
         Patient savedPatient = patientRepository.save(patient);
         return new SuccessDataResult<>(patientMapper.toDetailedResponse(savedPatient), "Patient activated successfully");
+    }
+
+    @Override
+    public Patient getPatientById(UUID id) {
+        return patientRepository.findByIdAndStatus(id, EntityStatus.ACTIVE)
+                .orElseThrow(() -> new NotFoundException("Patient not found with ID: " + id, ErrorCode.PATIENT_NOT_FOUND));
     }
 }

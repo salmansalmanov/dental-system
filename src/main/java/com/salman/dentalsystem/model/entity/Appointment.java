@@ -1,9 +1,7 @@
 package com.salman.dentalsystem.model.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import com.salman.dentalsystem.model.enums.EntityStatus;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,6 +21,9 @@ public class Appointment extends BaseEntity {
     private LocalTime startTime;
     private LocalTime endTime;
     private String treatment;
+
+    @Enumerated(EnumType.STRING)
+    private EntityStatus status;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Patient patient;

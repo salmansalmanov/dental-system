@@ -60,7 +60,7 @@ public class UserController {
                 .body(userService.updateById(id, request));
     }
 
-    @DeleteMapping("/{id}")
+    @PatchMapping("/{id}")
     public ResponseEntity<DataResult<UserDetailedResponse>> deleteUser(@PathVariable UUID id) {
         return ResponseEntity
                 .status(HttpStatus.OK)

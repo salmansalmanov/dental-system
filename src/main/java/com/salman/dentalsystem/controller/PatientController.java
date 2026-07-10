@@ -68,7 +68,7 @@ public class PatientController {
                 .body(patientService.updateById(id, request));
     }
 
-    @DeleteMapping("/{id}")
+    @PatchMapping("/{id}")
     public ResponseEntity<DataResult<PatientDetailedResponse>> deletePatient(@PathVariable UUID id) {
         return ResponseEntity
                 .status(HttpStatus.OK)

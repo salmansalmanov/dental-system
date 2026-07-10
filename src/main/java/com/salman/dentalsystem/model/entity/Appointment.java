@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
@@ -21,6 +22,8 @@ public class Appointment extends BaseEntity {
     private LocalTime startTime;
     private LocalTime endTime;
     private String treatment;
+    private BigDecimal price;
+    private BigDecimal paidAmount = BigDecimal.ZERO;
 
     @Enumerated(EnumType.STRING)
     private EntityStatus status;

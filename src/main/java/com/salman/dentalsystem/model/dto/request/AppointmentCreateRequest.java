@@ -2,11 +2,13 @@ package com.salman.dentalsystem.model.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.UUID;
@@ -28,6 +30,10 @@ public class AppointmentCreateRequest {
 
     @NotBlank(message = "Treatment is required")
     private String treatment;
+
+    @NotNull(message = "Price is required")
+    @PositiveOrZero(message = "Price must be zero or positive")
+    private BigDecimal price;
 
     @NotNull(message = "Patient ID is required")
     private UUID patientId;

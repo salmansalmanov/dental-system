@@ -85,6 +85,9 @@ public class AppointmentServiceImpl implements AppointmentService {
         if (!request.getEndTime().isAfter(request.getStartTime())) {
             throw new InvalidInputException("End time must be after start time", ErrorCode.INVALID_APPOINTMENT_TIME);
         }
+        if (request.getPaidAmount().compareTo(request.getPrice()) > 0) {
+            throw new InvalidInputException("Paid amount cannot be greater than price", ErrorCode.INVALID_PAYMENT_AMOUNT);
+        }
         Appointment existingAppointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Appointment not found with ID: " + id, ErrorCode.APPOINTMENT_NOT_FOUND));
         User dentist = userService.getDentistById(request.getDentistId());

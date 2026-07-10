@@ -32,4 +32,20 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID> 
     Optional<Appointment> findById(UUID id);
 
     Page<Appointment> findAllByPatientId(UUID patientId, Pageable pageable);
+
+    boolean existsByDentistIdAndDateAndIdNotAndStartTimeLessThanAndEndTimeGreaterThan(
+            UUID dentistId,
+            LocalDate date,
+            UUID appointmentId,
+            LocalTime endTime,
+            LocalTime startTime
+    );
+
+    boolean existsByPatientIdAndDateAndIdNotAndStartTimeLessThanAndEndTimeGreaterThan(
+            UUID patientId,
+            LocalDate date,
+            UUID appointmentId,
+            LocalTime endTime,
+            LocalTime startTime
+    );
 }

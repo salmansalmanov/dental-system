@@ -5,6 +5,7 @@ import com.salman.dentalsystem.exception.custom.InvalidInputException;
 import com.salman.dentalsystem.exception.custom.NotFoundException;
 import com.salman.dentalsystem.mapper.AppointmentMapper;
 import com.salman.dentalsystem.model.dto.request.AppointmentCreateRequest;
+import com.salman.dentalsystem.model.dto.request.AppointmentUpdateRequest;
 import com.salman.dentalsystem.model.dto.response.AppointmentDetailedResponse;
 import com.salman.dentalsystem.model.dto.response.AppointmentResponse;
 import com.salman.dentalsystem.model.entity.Appointment;
@@ -41,8 +42,8 @@ public class AppointmentServiceImpl implements AppointmentService {
         if (!request.getEndTime().isAfter(request.getStartTime())) {
             throw new InvalidInputException("End time must be after start time", ErrorCode.INVALID_APPOINTMENT_TIME);
         }
-        validateDentistAvailability(request);
-        validatePatientAvailability(request);
+        validateDentistAvailabilityForCreate(request);
+        validatePatientAvailabilityForCreate(request);
         User dentist = userService.getDentistById(request.getDentistId());
         Patient patient = patientService.getActivePatientById(request.getPatientId());
         Appointment appointment = appointmentMapper.createRequestToEntity(request);
@@ -79,7 +80,24 @@ public class AppointmentServiceImpl implements AppointmentService {
         return new SuccessDataResult<>(pageData, "Appointments found successfully");
     }
 
-    private void validateDentistAvailability(AppointmentCreateRequest request) {
+    @Override
+    public DataResult<AppointmentDetailedResponse> updateById(UUID id, AppointmentUpdateRequest request) {
+        if (!request.getEndTime().isAfter(request.getStartTime())) {
+            throw new InvalidInputException("End time must be after start time", ErrorCode.INVALID_APPOINTMENT_TIME);
+        }
+        Appointment existingAppointment = appointmentRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Appointment not found with ID: " + id, ErrorCode.APPOINTMENT_NOT_FOUND));
+        User dentist = userService.getDentistById(request.getDentistId());
+        validateDentistAvailabilityForUpdate(id, request);
+        validatePatientAvailabilityForUpdate(id, existingAppointment.getPatient().getId(), request);
+        Appointment updatedAppointment = appointmentMapper.updateRequestToEntity(request, existingAppointment);
+        updatedAppointment.setDentist(dentist);
+        Appointment savedAppointment = appointmentRepository.save(updatedAppointment);
+        AppointmentDetailedResponse response = appointmentMapper.toDetailedResponse(savedAppointment);
+        return new SuccessDataResult<>(response, "Appointment updated successfully");
+    }
+
+    private void validateDentistAvailabilityForCreate(AppointmentCreateRequest request) {
         boolean hasConflict = appointmentRepository.existsByDentistIdAndDateAndStartTimeLessThanAndEndTimeGreaterThan(
                 request.getDentistId(),
                 request.getDate(),
@@ -91,10 +109,36 @@ public class AppointmentServiceImpl implements AppointmentService {
         }
     }
 
-    private void validatePatientAvailability(AppointmentCreateRequest request) {
+    private void validatePatientAvailabilityForCreate(AppointmentCreateRequest request) {
         boolean hasConflict = appointmentRepository.existsByPatientIdAndDateAndStartTimeLessThanAndEndTimeGreaterThan(
                 request.getPatientId(),
                 request.getDate(),
+                request.getEndTime(),
+                request.getStartTime()
+        );
+        if (hasConflict) {
+            throw new ConflictException("Patient already has another appointment during this time", ErrorCode.APPOINTMENT_CONFLICT);
+        }
+    }
+
+    private void validateDentistAvailabilityForUpdate(UUID appointmentId, AppointmentUpdateRequest request) {
+        boolean hasConflict = appointmentRepository.existsByDentistIdAndDateAndIdNotAndStartTimeLessThanAndEndTimeGreaterThan(
+                request.getDentistId(),
+                request.getDate(),
+                appointmentId,
+                request.getEndTime(),
+                request.getStartTime()
+        );
+        if (hasConflict) {
+            throw new ConflictException("Dentist already has another appointment during this time", ErrorCode.APPOINTMENT_CONFLICT);
+        }
+    }
+
+    private void validatePatientAvailabilityForUpdate(UUID appointmentId, UUID patientId, AppointmentUpdateRequest request) {
+        boolean hasConflict = appointmentRepository.existsByPatientIdAndDateAndIdNotAndStartTimeLessThanAndEndTimeGreaterThan(
+                patientId,
+                request.getDate(),
+                appointmentId,
                 request.getEndTime(),
                 request.getStartTime()
         );

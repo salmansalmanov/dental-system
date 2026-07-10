@@ -1,5 +1,6 @@
 package com.salman.dentalsystem.exception.handler;
 
+import com.salman.dentalsystem.exception.custom.ConflictException;
 import com.salman.dentalsystem.exception.custom.InvalidAppointmentTimeException;
 import com.salman.dentalsystem.exception.custom.InvalidInputException;
 import com.salman.dentalsystem.exception.custom.NotFoundException;
@@ -37,6 +38,13 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResult> handle(InvalidInputException ex) {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResult(ex.getMessage(), ex.getCode()));
+    }
+
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<ErrorResult> handle(ConflictException ex) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
                 .body(new ErrorResult(ex.getMessage(), ex.getCode()));
     }
 

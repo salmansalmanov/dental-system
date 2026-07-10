@@ -1,5 +1,6 @@
 package com.salman.dentalsystem.service.concrete;
 
+import com.salman.dentalsystem.exception.custom.ConflictException;
 import com.salman.dentalsystem.exception.custom.InvalidInputException;
 import com.salman.dentalsystem.exception.custom.NotFoundException;
 import com.salman.dentalsystem.mapper.PatientMapper;
@@ -32,6 +33,9 @@ public class PatientServiceImpl implements PatientService {
 
     @Override
     public DataResult<PatientDetailedResponse> create(PatientCreateRequest request) {
+        if (patientRepository.existsByPin(request.getPin().toUpperCase())) {
+            throw new ConflictException("Patient with the same PIN already exists", ErrorCode.PATIENT_ALREADY_EXISTS);
+        }
         Patient patient = patientMapper.createRequestToEntity(request);
         patient.setStatus(EntityStatus.ACTIVE);
         Patient savedPatient = patientRepository.save(patient);
@@ -65,6 +69,9 @@ public class PatientServiceImpl implements PatientService {
 
     @Override
     public DataResult<PatientDetailedResponse> updateById(UUID id, PatientUpdateRequest request) {
+        if (patientRepository.existsByPin(request.getPin().toUpperCase())) {
+            throw new ConflictException("Patient with the same PIN already exists", ErrorCode.PATIENT_ALREADY_EXISTS);
+        }
         Patient existingPatient = patientRepository.findByIdAndStatus(id, EntityStatus.ACTIVE)
                 .orElseThrow(() -> new NotFoundException("Patient not found with ID: " + id, ErrorCode.PATIENT_NOT_FOUND));
         Patient updatedPatient = patientMapper.updateRequestToEntity(request, existingPatient);
@@ -102,7 +109,7 @@ public class PatientServiceImpl implements PatientService {
         Patient patient = patientRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Deleted patient not found with ID: " + id, ErrorCode.PATIENT_NOT_FOUND));
         if (patient.getStatus() == EntityStatus.ACTIVE) {
-            throw new InvalidInputException("Patient is already active", ErrorCode.PATIENT_ALREADY_ACTIVE);
+            throw new ConflictException("Patient is already active", ErrorCode.PATIENT_ALREADY_ACTIVE);
         }
         patient.setStatus(EntityStatus.ACTIVE);
         Patient savedPatient = patientRepository.save(patient);

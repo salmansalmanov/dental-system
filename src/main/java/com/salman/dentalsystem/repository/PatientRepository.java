@@ -34,4 +34,6 @@ public interface PatientRepository extends JpaRepository<Patient, UUID> {
             @Param("status") EntityStatus status,
             Pageable pageable
     );
+
+    boolean existsByPin(String pin);
 }

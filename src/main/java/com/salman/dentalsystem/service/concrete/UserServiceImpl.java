@@ -1,6 +1,6 @@
 package com.salman.dentalsystem.service.concrete;
 
-import com.salman.dentalsystem.exception.custom.InvalidInputException;
+import com.salman.dentalsystem.exception.custom.ConflictException;
 import com.salman.dentalsystem.exception.custom.NotFoundException;
 import com.salman.dentalsystem.mapper.UserMapper;
 import com.salman.dentalsystem.model.dto.request.UserCreateRequest;
@@ -33,6 +33,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public DataResult<UserDetailedResponse> create(UserCreateRequest request) {
+        if (userRepository.existsByPin(request.getPin().toUpperCase())) {
+            throw new ConflictException("User with the same PIN already exists", ErrorCode.USER_ALREADY_EXISTS);
+        }
         User user = userMapper.createRequestToEntity(request);
         user.setStatus(EntityStatus.ACTIVE);
         User savedUser = userRepository.save(user);
@@ -66,6 +69,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public DataResult<UserDetailedResponse> updateById(UUID id, UserUpdateRequest request) {
+        if (userRepository.existsByPin(request.getPin().toUpperCase())) {
+            throw new ConflictException("User with the same PIN already exists", ErrorCode.USER_ALREADY_EXISTS);
+        }
         User existingUser = userRepository.findByIdAndStatusNot(id, EntityStatus.DELETED)
                 .orElseThrow(() -> new NotFoundException("User not found with ID: " + id, ErrorCode.USER_NOT_FOUND));
         User updatedUser = userMapper.updateRequestToEntity(request, existingUser);
@@ -87,7 +93,7 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User not found with ID: " + id, ErrorCode.USER_NOT_FOUND));
         if (user.getStatus() == EntityStatus.ACTIVE) {
-            throw new InvalidInputException("User is already active", ErrorCode.USER_ALREADY_ACTIVE);
+            throw new ConflictException("User is already active", ErrorCode.USER_ALREADY_ACTIVE);
         }
         user.setStatus(EntityStatus.ACTIVE);
         User savedUser = userRepository.save(user);

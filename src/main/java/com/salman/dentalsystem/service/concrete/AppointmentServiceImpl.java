@@ -1,5 +1,6 @@
 package com.salman.dentalsystem.service.concrete;
 
+import com.salman.dentalsystem.exception.custom.ConflictException;
 import com.salman.dentalsystem.exception.custom.InvalidInputException;
 import com.salman.dentalsystem.exception.custom.NotFoundException;
 import com.salman.dentalsystem.mapper.AppointmentMapper;
@@ -86,7 +87,7 @@ public class AppointmentServiceImpl implements AppointmentService {
                 request.getStartTime()
         );
         if (hasConflict) {
-            throw new InvalidInputException("Dentist already has another appointment during this time", ErrorCode.APPOINTMENT_CONFLICT);
+            throw new ConflictException("Dentist already has another appointment during this time", ErrorCode.APPOINTMENT_CONFLICT);
         }
     }
 
@@ -98,7 +99,7 @@ public class AppointmentServiceImpl implements AppointmentService {
                 request.getStartTime()
         );
         if (hasConflict) {
-            throw new InvalidInputException("Patient already has another appointment during this time", ErrorCode.APPOINTMENT_CONFLICT);
+            throw new ConflictException("Patient already has another appointment during this time", ErrorCode.APPOINTMENT_CONFLICT);
         }
     }
 }

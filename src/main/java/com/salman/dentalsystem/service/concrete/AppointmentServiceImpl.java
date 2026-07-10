@@ -97,6 +97,26 @@ public class AppointmentServiceImpl implements AppointmentService {
         return new SuccessDataResult<>(response, "Appointment updated successfully");
     }
 
+    @Override
+    public DataResult<AppointmentDetailedResponse> cancelById(UUID id) {
+        Appointment appointment = appointmentRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Appointment not found with ID: " + id, ErrorCode.APPOINTMENT_NOT_FOUND));
+        appointment.setStatus(EntityStatus.DELETED);
+        Appointment savedAppointment = appointmentRepository.save(appointment);
+        AppointmentDetailedResponse response = appointmentMapper.toDetailedResponse(savedAppointment);
+        return new SuccessDataResult<>(response, "Appointment canceled successfully");
+    }
+
+    @Override
+    public DataResult<AppointmentDetailedResponse> activateById(UUID id) {
+        Appointment appointment = appointmentRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Appointment not found with ID: " + id, ErrorCode.APPOINTMENT_NOT_FOUND));
+        appointment.setStatus(EntityStatus.ACTIVE);
+        Appointment savedAppointment = appointmentRepository.save(appointment);
+        AppointmentDetailedResponse response = appointmentMapper.toDetailedResponse(savedAppointment);
+        return new SuccessDataResult<>(response, "Appointment activated successfully");
+    }
+
     private void validateDentistAvailabilityForCreate(AppointmentCreateRequest request) {
         boolean hasConflict = appointmentRepository.existsByDentistIdAndDateAndStartTimeLessThanAndEndTimeGreaterThan(
                 request.getDentistId(),

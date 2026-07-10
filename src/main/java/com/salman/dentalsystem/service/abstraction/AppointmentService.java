@@ -17,4 +17,8 @@ public interface AppointmentService {
     DataResult<PageData<AppointmentResponse>> getAllByPatientId(UUID patientId, int page, int size);
 
     DataResult<AppointmentDetailedResponse> updateById(UUID id, AppointmentUpdateRequest request);
+
+    DataResult<AppointmentDetailedResponse> cancelById(UUID id);
+
+    DataResult<AppointmentDetailedResponse> activateById(UUID id);
 }

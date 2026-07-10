@@ -55,4 +55,18 @@ public class AppointmentController {
                 .status(HttpStatus.OK)
                 .body(appointmentService.updateById(id, request));
     }
+
+    @PatchMapping("/appointments/{id}/cancel")
+    public ResponseEntity<DataResult<AppointmentDetailedResponse>> cancelAppointmentById(@PathVariable UUID id) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(appointmentService.cancelById(id));
+    }
+
+    @PatchMapping("/appointments/{id}/activate")
+    public ResponseEntity<DataResult<AppointmentDetailedResponse>> activateAppointmentById(@PathVariable UUID id) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(appointmentService.activateById(id));
+    }
 }

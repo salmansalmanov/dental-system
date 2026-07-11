@@ -1,7 +1,9 @@
 package com.salman.dentalsystem.controller;
 
 import com.salman.dentalsystem.model.dto.request.LoginRequest;
+import com.salman.dentalsystem.model.dto.request.RefreshRequest;
 import com.salman.dentalsystem.model.dto.response.LoginResponse;
+import com.salman.dentalsystem.model.dto.response.RefreshResponse;
 import com.salman.dentalsystem.result.DataResult;
 import com.salman.dentalsystem.service.abstraction.AuthService;
 import jakarta.validation.Valid;
@@ -24,5 +26,12 @@ public class AuthController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(authService.login(request));
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<DataResult<RefreshResponse>> refresh(@RequestBody @Valid RefreshRequest request) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(authService.refresh(request));
     }
 }

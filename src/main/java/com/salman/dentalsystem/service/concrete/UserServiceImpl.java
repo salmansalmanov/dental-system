@@ -7,6 +7,7 @@ import com.salman.dentalsystem.mapper.UserMapper;
 import com.salman.dentalsystem.model.dto.request.UserCreateRequest;
 import com.salman.dentalsystem.model.dto.request.UserPasswordChangeRequest;
 import com.salman.dentalsystem.model.dto.request.UserUpdateRequest;
+import com.salman.dentalsystem.model.dto.response.PasswordResetResponse;
 import com.salman.dentalsystem.model.dto.response.UserCreateResponse;
 import com.salman.dentalsystem.model.dto.response.UserDetailedResponse;
 import com.salman.dentalsystem.model.dto.response.UserResponse;
@@ -157,6 +158,17 @@ public class UserServiceImpl implements UserService {
         User savedUser = userRepository.save(currentUser);
         UserDetailedResponse response = userMapper.toDetailedResponse(savedUser);
         return new SuccessDataResult<>(response, "Password changed successfully");
+    }
+
+    @Override
+    public DataResult<PasswordResetResponse> resetPassword(UUID id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("User not found with ID: " + id, ErrorCode.USER_NOT_FOUND));
+        String newPassword = generatePassword();
+        user.setPassword(passwordEncoder.encode(newPassword));
+        User savedUser = userRepository.save(user);
+        PasswordResetResponse response = new PasswordResetResponse(savedUser.getUsername(), newPassword);
+        return new SuccessDataResult<>(response, "Password reset successfully. This password will be displayed only once. Please save it in a secure place and share it with the user. You will not be able to view it again.");
     }
 
     private String generatePassword() {

@@ -3,6 +3,7 @@ package com.salman.dentalsystem.controller;
 import com.salman.dentalsystem.model.dto.request.UserCreateRequest;
 import com.salman.dentalsystem.model.dto.request.UserPasswordChangeRequest;
 import com.salman.dentalsystem.model.dto.request.UserUpdateRequest;
+import com.salman.dentalsystem.model.dto.response.PasswordResetResponse;
 import com.salman.dentalsystem.model.dto.response.UserCreateResponse;
 import com.salman.dentalsystem.model.dto.response.UserDetailedResponse;
 import com.salman.dentalsystem.model.dto.response.UserResponse;
@@ -95,5 +96,12 @@ public class UserController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(userService.changeMyPassword(request));
+    }
+
+    @PatchMapping("/{id}/reset-password")
+    public ResponseEntity<DataResult<PasswordResetResponse>> resetPassword(@PathVariable UUID id) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(userService.resetPassword(id));
     }
 }

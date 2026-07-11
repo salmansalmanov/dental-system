@@ -3,6 +3,7 @@ package com.salman.dentalsystem.service.abstraction;
 import com.salman.dentalsystem.model.dto.request.UserCreateRequest;
 import com.salman.dentalsystem.model.dto.request.UserPasswordChangeRequest;
 import com.salman.dentalsystem.model.dto.request.UserUpdateRequest;
+import com.salman.dentalsystem.model.dto.response.PasswordResetResponse;
 import com.salman.dentalsystem.model.dto.response.UserCreateResponse;
 import com.salman.dentalsystem.model.dto.response.UserDetailedResponse;
 import com.salman.dentalsystem.model.dto.response.UserResponse;
@@ -37,4 +38,6 @@ public interface UserService {
     DataResult<UserDetailedResponse> updateMyProfile(UserUpdateRequest request);
 
     DataResult<UserDetailedResponse> changeMyPassword(UserPasswordChangeRequest request);
+
+    DataResult<PasswordResetResponse> resetPassword(UUID id);
 }

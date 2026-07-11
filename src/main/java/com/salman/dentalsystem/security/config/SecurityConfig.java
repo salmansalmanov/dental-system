@@ -34,6 +34,7 @@ public class SecurityConfig {
                         .requestMatchers("/v1/auth/login").permitAll()
                         .requestMatchers("/v1/users/me").hasAnyRole("DENTIST", "ADMIN", "RECEPTIONIST")
                         .requestMatchers("/v1/users/me/password").hasAnyRole("DENTIST", "ADMIN", "RECEPTIONIST")
+                        .requestMatchers("/v1/users/{id}/reset-password").hasRole("ADMIN")
                         .anyRequest().permitAll())
                 .sessionManagement(sessionManagement -> sessionManagement
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))

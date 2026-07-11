@@ -64,10 +64,10 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
-    public DataResult<PageData<AppointmentResponse>> getAllByPatientId(UUID patientId, int page, int size) {
+    public DataResult<PageData<AppointmentResponse>> getAllByPatientId(UUID patientId, EntityStatus status, int page, int size) {
         Patient patient = patientService.getPatientById(patientId);
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        Page<Appointment> appointmentPage = appointmentRepository.findAllByPatientId(patient.getId(), pageable);
+        Page<Appointment> appointmentPage = appointmentRepository.findAllByPatientIdAndStatus(patient.getId(), status, pageable);
         PageData<AppointmentResponse> pageData = new PageData<>(
                 appointmentPage.getTotalPages(),
                 appointmentPage.getTotalElements(),

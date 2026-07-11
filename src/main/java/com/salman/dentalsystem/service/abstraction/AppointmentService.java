@@ -4,6 +4,7 @@ import com.salman.dentalsystem.model.dto.request.AppointmentCreateRequest;
 import com.salman.dentalsystem.model.dto.request.AppointmentUpdateRequest;
 import com.salman.dentalsystem.model.dto.response.AppointmentDetailedResponse;
 import com.salman.dentalsystem.model.dto.response.AppointmentResponse;
+import com.salman.dentalsystem.model.enums.EntityStatus;
 import com.salman.dentalsystem.result.DataResult;
 import com.salman.dentalsystem.result.PageData;
 
@@ -14,7 +15,7 @@ public interface AppointmentService {
 
     DataResult<AppointmentDetailedResponse> getById(UUID id);
 
-    DataResult<PageData<AppointmentResponse>> getAllByPatientId(UUID patientId, int page, int size);
+    DataResult<PageData<AppointmentResponse>> getAllByPatientId(UUID patientId, EntityStatus status, int page, int size);
 
     DataResult<AppointmentDetailedResponse> updateById(UUID id, AppointmentUpdateRequest request);
 

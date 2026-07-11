@@ -1,6 +1,7 @@
 package com.salman.dentalsystem.repository;
 
 import com.salman.dentalsystem.model.entity.Appointment;
+import com.salman.dentalsystem.model.enums.EntityStatus;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -32,6 +33,8 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID> 
     Optional<Appointment> findById(UUID id);
 
     Page<Appointment> findAllByPatientId(UUID patientId, Pageable pageable);
+
+    Page<Appointment> findAllByPatientIdAndStatus(UUID patientId, EntityStatus status, Pageable pageable);
 
     boolean existsByDentistIdAndDateAndIdNotAndStartTimeLessThanAndEndTimeGreaterThan(
             UUID dentistId,

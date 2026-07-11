@@ -4,6 +4,8 @@ import com.salman.dentalsystem.model.dto.request.AppointmentCreateRequest;
 import com.salman.dentalsystem.model.dto.request.AppointmentUpdateRequest;
 import com.salman.dentalsystem.model.dto.response.AppointmentDetailedResponse;
 import com.salman.dentalsystem.model.dto.response.AppointmentResponse;
+import com.salman.dentalsystem.model.enums.EntityStatus;
+import com.salman.dentalsystem.model.enums.Role;
 import com.salman.dentalsystem.result.DataResult;
 import com.salman.dentalsystem.result.PageData;
 import com.salman.dentalsystem.service.abstraction.AppointmentService;
@@ -38,12 +40,13 @@ public class AppointmentController {
     @GetMapping("/patients/{patientId}/appointments")
     public ResponseEntity<DataResult<PageData<AppointmentResponse>>> getAllAppointmentsByPatientId(
             @PathVariable UUID patientId,
+            @RequestParam EntityStatus status,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size
     ) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(appointmentService.getAllByPatientId(patientId, page, size));
+                .body(appointmentService.getAllByPatientId(patientId, status, page, size));
     }
 
     @PutMapping("/appointments/{id}")

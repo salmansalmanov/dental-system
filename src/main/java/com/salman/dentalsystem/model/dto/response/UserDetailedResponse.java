@@ -17,6 +17,7 @@ public class UserDetailedResponse {
     private UUID id;
     private String name;
     private String surname;
+    private String username;
     private String patronymic;
     private String phoneNumber;
     private String pin;

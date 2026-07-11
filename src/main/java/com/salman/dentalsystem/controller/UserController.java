@@ -81,4 +81,11 @@ public class UserController {
                 .status(HttpStatus.OK)
                 .body(userService.getMyProfile());
     }
+
+    @PutMapping("/me")
+    public ResponseEntity<DataResult<UserDetailedResponse>> updateMyProfile(@RequestBody @Valid UserUpdateRequest request) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(userService.updateMyProfile(request));
+    }
 }

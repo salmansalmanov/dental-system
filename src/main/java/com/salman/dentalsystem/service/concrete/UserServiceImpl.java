@@ -134,6 +134,15 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new NotFoundException("Current user not found", ErrorCode.USER_NOT_FOUND));
     }
 
+    @Override
+    public DataResult<UserDetailedResponse> updateMyProfile(UserUpdateRequest request) {
+        User existingUser = getCurrentUser();
+        User updatedUser = userMapper.updateRequestToEntity(request, existingUser);
+        User savedUser = userRepository.save(updatedUser);
+        UserDetailedResponse response = userMapper.toDetailedResponse(savedUser);
+        return new SuccessDataResult<>(response, "My profile updated successfully");
+    }
+
     private String generatePassword() {
         String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
         StringBuilder password = new StringBuilder();

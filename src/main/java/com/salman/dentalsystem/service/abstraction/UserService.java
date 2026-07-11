@@ -31,4 +31,6 @@ public interface UserService {
     DataResult<UserDetailedResponse> getMyProfile();
 
     User getCurrentUser();
+
+    DataResult<UserDetailedResponse> updateMyProfile(UserUpdateRequest request);
 }

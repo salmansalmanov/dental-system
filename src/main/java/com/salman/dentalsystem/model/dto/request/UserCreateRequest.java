@@ -31,10 +31,6 @@ public class UserCreateRequest {
             message = "Phone number must start with +994 and be 13 characters long")
     private String phoneNumber;
 
-    @NotBlank(message = "PIN cannot be blank")
-    @Size(min = 7, max = 7, message = "PIN must be 7 characters long")
-    private String pin;
-
     @NotNull(message = "Role cannot be null")
     private Role role;
 }

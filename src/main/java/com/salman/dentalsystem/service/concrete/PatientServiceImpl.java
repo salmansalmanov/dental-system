@@ -33,9 +33,6 @@ public class PatientServiceImpl implements PatientService {
 
     @Override
     public DataResult<PatientDetailedResponse> create(PatientCreateRequest request) {
-        if (patientRepository.existsByPin(request.getPin().toUpperCase())) {
-            throw new ConflictException("Patient with the same PIN already exists", ErrorCode.PATIENT_ALREADY_EXISTS);
-        }
         Patient patient = patientMapper.createRequestToEntity(request);
         patient.setStatus(EntityStatus.ACTIVE);
         Patient savedPatient = patientRepository.save(patient);
@@ -69,9 +66,6 @@ public class PatientServiceImpl implements PatientService {
 
     @Override
     public DataResult<PatientDetailedResponse> updateById(UUID id, PatientUpdateRequest request) {
-        if (patientRepository.existsByPin(request.getPin().toUpperCase())) {
-            throw new ConflictException("Patient with the same PIN already exists", ErrorCode.PATIENT_ALREADY_EXISTS);
-        }
         Patient existingPatient = patientRepository.findByIdAndStatus(id, EntityStatus.ACTIVE)
                 .orElseThrow(() -> new NotFoundException("Patient not found with ID: " + id, ErrorCode.PATIENT_NOT_FOUND));
         Patient updatedPatient = patientMapper.updateRequestToEntity(request, existingPatient);

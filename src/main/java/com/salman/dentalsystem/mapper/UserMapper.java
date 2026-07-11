@@ -14,7 +14,6 @@ import org.mapstruct.Named;
 @Mapper(componentModel = "spring")
 public interface UserMapper {
 
-    @Mapping(target = "pin", source = "pin", qualifiedByName = "toUpper")
     @Mapping(target = "status", constant = "PENDING")
     User createRequestToEntity(UserCreateRequest request);
 

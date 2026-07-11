@@ -27,7 +27,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
                    OR LOWER(u.surname) LIKE CONCAT('%', LOWER(CAST(:search AS string)), '%')
                    OR LOWER(u.patronymic) LIKE CONCAT('%', LOWER(CAST(:search AS string)), '%')
                    OR LOWER(u.phoneNumber) LIKE CONCAT('%', LOWER(CAST(:search AS string)), '%')
-                   OR LOWER(u.pin) LIKE CONCAT('%', LOWER(CAST(:search AS string)), '%')
               )
             """)
     Page<User> findAllFiltered(
@@ -38,8 +37,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     );
 
     Optional<User> findByIdAndRoleAndStatus(UUID id, Role role, EntityStatus status);
-
-    boolean existsByPin(String pin);
 
     Optional<User> findByUsername(String username);
 }

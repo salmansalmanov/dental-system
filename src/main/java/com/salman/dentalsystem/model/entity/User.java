@@ -21,7 +21,6 @@ public class User extends BaseEntity {
     private String password;
     private String patronymic;
     private String phoneNumber;
-    private String pin;
 
     @Enumerated(EnumType.STRING)
     private EntityStatus status;

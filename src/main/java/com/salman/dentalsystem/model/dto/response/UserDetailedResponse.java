@@ -20,7 +20,6 @@ public class UserDetailedResponse {
     private String username;
     private String patronymic;
     private String phoneNumber;
-    private String pin;
     private EntityStatus status;
     private Role role;
 }

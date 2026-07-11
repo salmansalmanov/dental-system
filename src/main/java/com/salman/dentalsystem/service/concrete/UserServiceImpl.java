@@ -43,9 +43,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public DataResult<UserCreateResponse> create(UserCreateRequest request) {
-        if (userRepository.existsByPin(request.getPin().toUpperCase())) {
-            throw new ConflictException("User with the same PIN already exists", ErrorCode.USER_ALREADY_EXISTS);
-        }
         User user = userMapper.createRequestToEntity(request);
         user.setStatus(EntityStatus.ACTIVE);
         String username = user.getName().toLowerCase() + "." + user.getSurname().toLowerCase();
@@ -84,9 +81,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public DataResult<UserDetailedResponse> updateById(UUID id, UserUpdateRequest request) {
-        if (userRepository.existsByPin(request.getPin().toUpperCase())) {
-            throw new ConflictException("User with the same PIN already exists", ErrorCode.USER_ALREADY_EXISTS);
-        }
         User existingUser = userRepository.findByIdAndStatusNot(id, EntityStatus.DELETED)
                 .orElseThrow(() -> new NotFoundException("User not found with ID: " + id, ErrorCode.USER_NOT_FOUND));
         User updatedUser = userMapper.updateRequestToEntity(request, existingUser);

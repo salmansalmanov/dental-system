@@ -20,6 +20,5 @@ public class UserCreateResponse {
     private String password;
     private String patronymic;
     private String phoneNumber;
-    private String pin;
     private EntityStatus status;
 }

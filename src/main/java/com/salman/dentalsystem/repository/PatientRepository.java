@@ -26,7 +26,6 @@ public interface PatientRepository extends JpaRepository<Patient, UUID> {
                        OR LOWER(p.surname) LIKE CONCAT('%', LOWER(CAST(:search AS string)), '%')
                        OR LOWER(p.patronymic) LIKE CONCAT('%', LOWER(CAST(:search AS string)), '%')
                        OR LOWER(p.phoneNumber) LIKE CONCAT('%', LOWER(CAST(:search AS string)), '%')
-                       OR LOWER(p.pin) LIKE CONCAT('%', LOWER(CAST(:search AS string)), '%')
                   )
             """)
     Page<Patient> findAllFiltered(
@@ -34,6 +33,4 @@ public interface PatientRepository extends JpaRepository<Patient, UUID> {
             @Param("status") EntityStatus status,
             Pageable pageable
     );
-
-    boolean existsByPin(String pin);
 }

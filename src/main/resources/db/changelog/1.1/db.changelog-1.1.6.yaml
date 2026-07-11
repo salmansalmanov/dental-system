@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1.1.6-drop-pin-columns
+      author: salmansalmanov
+      changes:
+        - dropColumn:
+            tableName: patients
+            columnName: pin
+        - dropColumn:
+            tableName: users
+            columnName: pin

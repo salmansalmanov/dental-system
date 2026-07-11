@@ -11,10 +11,12 @@ import com.salman.dentalsystem.model.dto.response.PasswordResetResponse;
 import com.salman.dentalsystem.model.dto.response.UserCreateResponse;
 import com.salman.dentalsystem.model.dto.response.UserDetailedResponse;
 import com.salman.dentalsystem.model.dto.response.UserResponse;
+import com.salman.dentalsystem.model.entity.RefreshToken;
 import com.salman.dentalsystem.model.entity.User;
 import com.salman.dentalsystem.model.enums.EntityStatus;
 import com.salman.dentalsystem.model.enums.ErrorCode;
 import com.salman.dentalsystem.model.enums.Role;
+import com.salman.dentalsystem.repository.RefreshTokenRepository;
 import com.salman.dentalsystem.repository.UserRepository;
 import com.salman.dentalsystem.result.DataResult;
 import com.salman.dentalsystem.result.PageData;
@@ -41,6 +43,7 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     @Override
     public DataResult<UserCreateResponse> create(UserCreateRequest request) {
@@ -155,6 +158,10 @@ public class UserServiceImpl implements UserService {
             throw new InvalidInputException("Current password is incorrect", ErrorCode.INVALID_PASSWORD);
         }
         currentUser.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        RefreshToken refreshToken = refreshTokenRepository.findByUser(currentUser)
+                .orElseThrow(() -> new NotFoundException("Refresh token not found for user: " + currentUser.getId(), ErrorCode.REFRESH_TOKEN_NOT_FOUND));
+        refreshToken.setRevoked(true);
+        refreshTokenRepository.save(refreshToken);
         User savedUser = userRepository.save(currentUser);
         UserDetailedResponse response = userMapper.toDetailedResponse(savedUser);
         return new SuccessDataResult<>(response, "Password changed successfully");
@@ -166,6 +173,10 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new NotFoundException("User not found with ID: " + id, ErrorCode.USER_NOT_FOUND));
         String newPassword = generatePassword();
         user.setPassword(passwordEncoder.encode(newPassword));
+        RefreshToken refreshToken = refreshTokenRepository.findByUser(user)
+                .orElseThrow(() -> new NotFoundException("Refresh token not found for user: " + user.getId(), ErrorCode.REFRESH_TOKEN_NOT_FOUND));
+        refreshToken.setRevoked(true);
+        refreshTokenRepository.save(refreshToken);
         User savedUser = userRepository.save(user);
         PasswordResetResponse response = new PasswordResetResponse(savedUser.getUsername(), newPassword);
         return new SuccessDataResult<>(response, "Password reset successfully. This password will be displayed only once. Please save it in a secure place and share it with the user. You will not be able to view it again.");

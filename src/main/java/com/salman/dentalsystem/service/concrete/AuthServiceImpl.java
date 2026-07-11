@@ -67,14 +67,7 @@ public class AuthServiceImpl implements AuthService {
     public DataResult<RefreshResponse> refresh(RefreshRequest request) {
         RefreshToken refreshTokenEntity = refreshTokenRepository.findByToken(request.getRefreshToken())
                 .orElseThrow(() -> new InvalidTokenException("Invalid refresh token", ErrorCode.INVALID_REFRESH_TOKEN));
-
-        if (refreshTokenEntity.getRevoked()) {
-            throw new InvalidTokenException("Refresh token has been revoked", ErrorCode.REVOKED_REFRESH_TOKEN);
-        }
-        if (refreshTokenEntity.getExpiresAt().isBefore(LocalDateTime.now())) {
-            throw new InvalidTokenException("Refresh token expired", ErrorCode.EXPIRED_REFRESH_TOKEN);
-        }
-
+        validateRefreshToken(refreshTokenEntity);
         User user = refreshTokenEntity.getUser();
         if (user.getStatus() != EntityStatus.ACTIVE) {
             throw new NotFoundException("User not found", ErrorCode.USER_NOT_FOUND);
@@ -86,5 +79,14 @@ public class AuthServiceImpl implements AuthService {
         refreshTokenRepository.save(refreshTokenEntity);
         RefreshResponse response = new RefreshResponse(accessToken, refreshToken);
         return new SuccessDataResult<>(response, "Tokens refreshed successfully");
+    }
+
+    private void validateRefreshToken(RefreshToken refreshTokenEntity) {
+        if (refreshTokenEntity.getRevoked()) {
+            throw new InvalidTokenException("Refresh token has been revoked", ErrorCode.REVOKED_REFRESH_TOKEN);
+        }
+        if (refreshTokenEntity.getExpiresAt().isBefore(LocalDateTime.now())) {
+            throw new InvalidTokenException("Refresh token expired", ErrorCode.EXPIRED_REFRESH_TOKEN);
+        }
     }
 }

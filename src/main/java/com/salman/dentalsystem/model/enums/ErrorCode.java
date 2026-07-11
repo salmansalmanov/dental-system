@@ -16,4 +16,5 @@ public enum ErrorCode {
     INVALID_PAYMENT_AMOUNT,
     ACCESS_DENIED,
     UNAUTHORIZED,
+    INVALID_PASSWORD
 }

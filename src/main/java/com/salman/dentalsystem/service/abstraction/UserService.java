@@ -1,6 +1,7 @@
 package com.salman.dentalsystem.service.abstraction;
 
 import com.salman.dentalsystem.model.dto.request.UserCreateRequest;
+import com.salman.dentalsystem.model.dto.request.UserPasswordChangeRequest;
 import com.salman.dentalsystem.model.dto.request.UserUpdateRequest;
 import com.salman.dentalsystem.model.dto.response.UserCreateResponse;
 import com.salman.dentalsystem.model.dto.response.UserDetailedResponse;
@@ -10,6 +11,7 @@ import com.salman.dentalsystem.model.enums.EntityStatus;
 import com.salman.dentalsystem.model.enums.Role;
 import com.salman.dentalsystem.result.DataResult;
 import com.salman.dentalsystem.result.PageData;
+import jakarta.validation.Valid;
 
 import java.util.UUID;
 
@@ -33,4 +35,6 @@ public interface UserService {
     User getCurrentUser();
 
     DataResult<UserDetailedResponse> updateMyProfile(UserUpdateRequest request);
+
+    DataResult<UserDetailedResponse> changeMyPassword(UserPasswordChangeRequest request);
 }

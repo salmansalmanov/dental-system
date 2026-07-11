@@ -1,9 +1,11 @@
 package com.salman.dentalsystem.service.concrete;
 
 import com.salman.dentalsystem.exception.custom.ConflictException;
+import com.salman.dentalsystem.exception.custom.InvalidInputException;
 import com.salman.dentalsystem.exception.custom.NotFoundException;
 import com.salman.dentalsystem.mapper.UserMapper;
 import com.salman.dentalsystem.model.dto.request.UserCreateRequest;
+import com.salman.dentalsystem.model.dto.request.UserPasswordChangeRequest;
 import com.salman.dentalsystem.model.dto.request.UserUpdateRequest;
 import com.salman.dentalsystem.model.dto.response.UserCreateResponse;
 import com.salman.dentalsystem.model.dto.response.UserDetailedResponse;
@@ -141,6 +143,18 @@ public class UserServiceImpl implements UserService {
         User savedUser = userRepository.save(updatedUser);
         UserDetailedResponse response = userMapper.toDetailedResponse(savedUser);
         return new SuccessDataResult<>(response, "My profile updated successfully");
+    }
+
+    @Override
+    public DataResult<UserDetailedResponse> changeMyPassword(UserPasswordChangeRequest request) {
+        User currentUser = getCurrentUser();
+        if (!passwordEncoder.matches(request.getCurrentPassword(), currentUser.getPassword())) {
+            throw new InvalidInputException("Current password is incorrect", ErrorCode.INVALID_PASSWORD);
+        }
+        currentUser.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        User savedUser = userRepository.save(currentUser);
+        UserDetailedResponse response = userMapper.toDetailedResponse(savedUser);
+        return new SuccessDataResult<>(response, "Password changed successfully");
     }
 
     private String generatePassword() {

@@ -53,7 +53,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResult> handle(BadCredentialsException ex) {
         return ResponseEntity
                 .status(HttpStatus.UNAUTHORIZED)
-                .body(new ErrorResult("Invalid username or password", ErrorCode.UNAUTHORIZED));
+                .body(new ErrorResult("Invalid username or password", ErrorCode.INVALID_PASSWORD));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

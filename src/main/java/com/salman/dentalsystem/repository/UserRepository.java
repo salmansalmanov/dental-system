@@ -40,4 +40,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     Optional<User> findByIdAndRoleAndStatus(UUID id, Role role, EntityStatus status);
 
     boolean existsByPin(String pin);
+
+    Optional<User> findByUsername(String username);
 }

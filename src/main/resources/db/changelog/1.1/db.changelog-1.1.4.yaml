@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1.1.4-add-username-password-to-users
+      author: salmansalmanov
+      changes:
+        - addColumn:
+            tableName: users
+            columns:
+              - column:
+                  name: username
+                  type: VARCHAR(40)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: password
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false

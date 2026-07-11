@@ -46,6 +46,14 @@ public class UserServiceImpl implements UserService {
         User user = userMapper.createRequestToEntity(request);
         user.setStatus(EntityStatus.ACTIVE);
         String username = user.getName().toLowerCase() + "." + user.getSurname().toLowerCase();
+        if (userRepository.existsByUsername(username)) {
+            for (int i = 2; i < Integer.MAX_VALUE; i++) {
+                if (!userRepository.existsByUsername(username)) {
+                    break;
+                }
+                username = user.getName().toLowerCase() + "." + user.getSurname().toLowerCase() + "." + i;
+            }
+        }
         String password = generatePassword();
         user.setUsername(username);
         user.setPassword(passwordEncoder.encode(password));

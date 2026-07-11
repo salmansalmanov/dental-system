@@ -2,6 +2,7 @@ package com.salman.dentalsystem.service.abstraction;
 
 import com.salman.dentalsystem.model.dto.request.UserCreateRequest;
 import com.salman.dentalsystem.model.dto.request.UserUpdateRequest;
+import com.salman.dentalsystem.model.dto.response.UserCreateResponse;
 import com.salman.dentalsystem.model.dto.response.UserDetailedResponse;
 import com.salman.dentalsystem.model.dto.response.UserResponse;
 import com.salman.dentalsystem.model.entity.User;
@@ -13,7 +14,7 @@ import com.salman.dentalsystem.result.PageData;
 import java.util.UUID;
 
 public interface UserService {
-    DataResult<UserDetailedResponse> create(UserCreateRequest request);
+    DataResult<UserCreateResponse> create(UserCreateRequest request);
 
     DataResult<UserDetailedResponse> getById(UUID id);
 

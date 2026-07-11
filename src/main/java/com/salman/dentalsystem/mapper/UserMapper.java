@@ -2,6 +2,7 @@ package com.salman.dentalsystem.mapper;
 
 import com.salman.dentalsystem.model.dto.request.UserCreateRequest;
 import com.salman.dentalsystem.model.dto.request.UserUpdateRequest;
+import com.salman.dentalsystem.model.dto.response.UserCreateResponse;
 import com.salman.dentalsystem.model.dto.response.UserDetailedResponse;
 import com.salman.dentalsystem.model.dto.response.UserResponse;
 import com.salman.dentalsystem.model.entity.User;
@@ -27,4 +28,6 @@ public interface UserMapper {
     UserResponse toResponse(User user);
 
     User updateRequestToEntity(UserUpdateRequest request, @MappingTarget User entity);
+
+    UserCreateResponse toCreateResponse(User user);
 }

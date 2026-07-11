@@ -8,14 +8,16 @@ import lombok.Setter;
 
 import java.util.UUID;
 
-@Setter
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class PatientDetailedResponse {
+public class UserCreateResponse {
     private UUID id;
     private String name;
     private String surname;
+    private String username;
+    private String password;
     private String patronymic;
     private String phoneNumber;
     private String pin;

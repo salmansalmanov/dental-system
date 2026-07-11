@@ -9,6 +9,7 @@ import com.salman.dentalsystem.result.ErrorDataResult;
 import com.salman.dentalsystem.result.ErrorResult;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -46,6 +47,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
                 .body(new ErrorResult(ex.getMessage(), ex.getCode()));
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ErrorResult> handle(BadCredentialsException ex) {
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(new ErrorResult("Invalid username or password", ErrorCode.UNAUTHORIZED));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

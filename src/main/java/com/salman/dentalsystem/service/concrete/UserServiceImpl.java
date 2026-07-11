@@ -5,6 +5,7 @@ import com.salman.dentalsystem.exception.custom.NotFoundException;
 import com.salman.dentalsystem.mapper.UserMapper;
 import com.salman.dentalsystem.model.dto.request.UserCreateRequest;
 import com.salman.dentalsystem.model.dto.request.UserUpdateRequest;
+import com.salman.dentalsystem.model.dto.response.UserCreateResponse;
 import com.salman.dentalsystem.model.dto.response.UserDetailedResponse;
 import com.salman.dentalsystem.model.dto.response.UserResponse;
 import com.salman.dentalsystem.model.entity.User;
@@ -21,26 +22,36 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.security.SecureRandom;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
+    private static final SecureRandom RANDOM = new SecureRandom();
+
     private final UserMapper userMapper;
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
-    public DataResult<UserDetailedResponse> create(UserCreateRequest request) {
+    public DataResult<UserCreateResponse> create(UserCreateRequest request) {
         if (userRepository.existsByPin(request.getPin().toUpperCase())) {
             throw new ConflictException("User with the same PIN already exists", ErrorCode.USER_ALREADY_EXISTS);
         }
         User user = userMapper.createRequestToEntity(request);
         user.setStatus(EntityStatus.ACTIVE);
+        String username = user.getName().toLowerCase() + "." + user.getSurname().toLowerCase();
+        String password = generatePassword();
+        user.setUsername(username);
+        user.setPassword(passwordEncoder.encode(password));
         User savedUser = userRepository.save(user);
-        UserDetailedResponse userDetailedResponse = userMapper.toDetailedResponse(savedUser);
-        return new SuccessDataResult<>(userDetailedResponse, "User created successfully");
+        UserCreateResponse response = userMapper.toCreateResponse(savedUser);
+        response.setPassword(password);
+        return new SuccessDataResult<>(response, "User created successfully. This password will be displayed only once. Please save it in a secure place and share it with the user. You will not be able to view it again.");
     }
 
     @Override
@@ -104,5 +115,15 @@ public class UserServiceImpl implements UserService {
     public User getDentistById(UUID id) {
         return userRepository.findByIdAndRoleAndStatus(id, Role.DENTIST, EntityStatus.ACTIVE)
                 .orElseThrow(() -> new NotFoundException("User not found with ID: " + id, ErrorCode.USER_NOT_FOUND));
+    }
+
+    private String generatePassword() {
+        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        StringBuilder password = new StringBuilder();
+        for (int i = 0; i < 8; i++) {
+            int randomIndex = RANDOM.nextInt(characters.length());
+            password.append(characters.charAt(randomIndex));
+        }
+        return password.toString();
     }
 }

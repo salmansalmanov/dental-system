@@ -2,6 +2,7 @@ package com.salman.dentalsystem.controller;
 
 import com.salman.dentalsystem.model.dto.request.UserCreateRequest;
 import com.salman.dentalsystem.model.dto.request.UserUpdateRequest;
+import com.salman.dentalsystem.model.dto.response.UserCreateResponse;
 import com.salman.dentalsystem.model.dto.response.UserDetailedResponse;
 import com.salman.dentalsystem.model.dto.response.UserResponse;
 import com.salman.dentalsystem.model.enums.EntityStatus;
@@ -24,7 +25,7 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public ResponseEntity<DataResult<UserDetailedResponse>> createUser(@RequestBody @Valid UserCreateRequest request) {
+    public ResponseEntity<DataResult<UserCreateResponse>> createUser(@RequestBody @Valid UserCreateRequest request) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(userService.create(request));

@@ -22,7 +22,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        ErrorResult errorResult = new ErrorResult("Authentication failed: " + authException.getMessage(), ErrorCode.UNAUTHORIZED);
+        ErrorResult errorResult = new ErrorResult("Authentication is required to access this resource", ErrorCode.UNAUTHORIZED);
         ObjectMapper mapper = new ObjectMapper();
         response.getWriter().write(mapper.writeValueAsString(errorResult));
     }

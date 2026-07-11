@@ -18,6 +18,7 @@ import com.salman.dentalsystem.result.SuccessDataResult;
 import com.salman.dentalsystem.result.SuccessResult;
 import com.salman.dentalsystem.security.service.JwtService;
 import com.salman.dentalsystem.service.abstraction.AuthService;
+import com.salman.dentalsystem.service.abstraction.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -35,6 +36,7 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final JwtService jwtService;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final UserService userService;
 
     @Value("${spring.jwt.refresh.expiration}")
     private long refreshTokenExpiration;
@@ -87,6 +89,16 @@ public class AuthServiceImpl implements AuthService {
     public void revokeRefreshToken(RefreshToken refreshToken) {
         refreshToken.setRevoked(true);
         refreshTokenRepository.save(refreshToken);
+    }
+
+    @Override
+    public Result logout() {
+        User user = userService.getCurrentUser();
+        RefreshToken refreshToken = refreshTokenRepository.findByUser(user)
+                .orElseThrow(() -> new NotFoundException("User not found", ErrorCode.USER_NOT_FOUND));
+        refreshToken.setRevoked(true);
+        refreshTokenRepository.save(refreshToken);
+        return new SuccessResult("User logged out");
     }
 
     private void validateRefreshToken(RefreshToken refreshTokenEntity) {

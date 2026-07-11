@@ -15,4 +15,6 @@ public interface AuthService {
     DataResult<RefreshResponse> refresh(RefreshRequest request);
 
     void revokeRefreshToken(RefreshToken refreshToken);
+
+    Result logout();
 }

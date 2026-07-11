@@ -5,6 +5,7 @@ import com.salman.dentalsystem.model.dto.request.RefreshRequest;
 import com.salman.dentalsystem.model.dto.response.LoginResponse;
 import com.salman.dentalsystem.model.dto.response.RefreshResponse;
 import com.salman.dentalsystem.result.DataResult;
+import com.salman.dentalsystem.result.Result;
 import com.salman.dentalsystem.service.abstraction.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -33,5 +34,12 @@ public class AuthController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(authService.refresh(request));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Result> logout() {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(authService.logout());
     }
 }

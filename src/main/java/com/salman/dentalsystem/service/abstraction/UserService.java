@@ -27,4 +27,8 @@ public interface UserService {
     DataResult<UserDetailedResponse> activateById(UUID id);
 
     User getDentistById(UUID id);
+
+    DataResult<UserDetailedResponse> getMyProfile();
+
+    User getCurrentUser();
 }

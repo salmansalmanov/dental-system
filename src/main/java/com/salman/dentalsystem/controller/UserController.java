@@ -74,4 +74,11 @@ public class UserController {
                 .status(HttpStatus.OK)
                 .body(userService.activateById(id));
     }
+
+    @GetMapping("/me")
+    public ResponseEntity<DataResult<UserDetailedResponse>> getMyProfile() {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(userService.getMyProfile());
+    }
 }

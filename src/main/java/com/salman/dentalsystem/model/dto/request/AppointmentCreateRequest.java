@@ -34,10 +34,4 @@ public class AppointmentCreateRequest {
     @NotNull(message = "Price is required")
     @PositiveOrZero(message = "Price must be zero or positive")
     private BigDecimal price;
-
-    @NotNull(message = "Patient ID is required")
-    private UUID patientId;
-
-    @NotNull(message = "Doctor ID is required")
-    private UUID dentistId;
 }

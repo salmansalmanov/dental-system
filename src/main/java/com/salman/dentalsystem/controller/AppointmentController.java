@@ -23,11 +23,14 @@ import java.util.UUID;
 public class AppointmentController {
     private final AppointmentService appointmentService;
 
-    @PostMapping("/appointments")
-    public ResponseEntity<DataResult<AppointmentDetailedResponse>> createAppointment(@RequestBody @Valid AppointmentCreateRequest request) {
+    @PostMapping("/patients/{patientId}/appointments")
+    public ResponseEntity<DataResult<AppointmentDetailedResponse>> createAppointment(
+            @PathVariable UUID patientId,
+            @RequestBody @Valid AppointmentCreateRequest request
+    ) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(appointmentService.create(request));
+                .body(appointmentService.create(patientId, request));
     }
 
     @GetMapping("/appointments/{id}")

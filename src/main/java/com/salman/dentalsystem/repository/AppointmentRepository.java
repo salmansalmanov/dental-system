@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -32,7 +33,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID> 
     @EntityGraph(attributePaths = "dentist")
     Optional<Appointment> findById(UUID id);
 
-    Page<Appointment> findAllByPatientId(UUID patientId, Pageable pageable);
+    List<Appointment> findAllByPatientId(UUID patientId);
 
     Page<Appointment> findAllByPatientIdAndStatus(UUID patientId, EntityStatus status, Pageable pageable);
 

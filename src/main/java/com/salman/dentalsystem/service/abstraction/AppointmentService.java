@@ -11,7 +11,7 @@ import com.salman.dentalsystem.result.PageData;
 import java.util.UUID;
 
 public interface AppointmentService {
-    DataResult<AppointmentDetailedResponse> create(AppointmentCreateRequest request);
+    DataResult<AppointmentDetailedResponse> create(UUID patientId, AppointmentCreateRequest request);
 
     DataResult<AppointmentDetailedResponse> getById(UUID id);
 

@@ -6,6 +6,7 @@ import com.salman.dentalsystem.security.handler.JwtAuthenticationEntryPoint;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -37,6 +38,7 @@ public class SecurityConfig {
                         .requestMatchers("/v1/users/{id}/reset-password").hasRole("ADMIN")
                         .requestMatchers("/v1/auth/refresh").hasAnyRole("DENTIST", "ADMIN", "RECEPTIONIST")
                         .requestMatchers("/v1/auth/logout").hasAnyRole("DENTIST", "ADMIN", "RECEPTIONIST")
+                        .requestMatchers(HttpMethod.POST, "/v1/patients/{id}/appointments").hasRole("DENTIST")
                         .anyRequest().permitAll())
                 .sessionManagement(sessionManagement -> sessionManagement
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))

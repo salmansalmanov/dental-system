@@ -8,9 +8,11 @@ import com.salman.dentalsystem.model.dto.request.PatientCreateRequest;
 import com.salman.dentalsystem.model.dto.request.PatientUpdateRequest;
 import com.salman.dentalsystem.model.dto.response.PatientDetailedResponse;
 import com.salman.dentalsystem.model.dto.response.PatientResponse;
+import com.salman.dentalsystem.model.entity.Appointment;
 import com.salman.dentalsystem.model.entity.Patient;
 import com.salman.dentalsystem.model.enums.EntityStatus;
 import com.salman.dentalsystem.model.enums.ErrorCode;
+import com.salman.dentalsystem.repository.AppointmentRepository;
 import com.salman.dentalsystem.repository.PatientRepository;
 import com.salman.dentalsystem.result.DataResult;
 import com.salman.dentalsystem.result.PageData;
@@ -23,6 +25,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -30,6 +33,7 @@ import java.util.UUID;
 public class PatientServiceImpl implements PatientService {
     private final PatientMapper patientMapper;
     private final PatientRepository patientRepository;
+    private final AppointmentRepository appointmentRepository;
 
     @Override
     public DataResult<PatientDetailedResponse> create(PatientCreateRequest request) {
@@ -78,6 +82,9 @@ public class PatientServiceImpl implements PatientService {
         Patient patient = patientRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Patient not found with ID: " + id, ErrorCode.PATIENT_NOT_FOUND));
         patient.setStatus(EntityStatus.DELETED);
+        List<Appointment> appointments = appointmentRepository.findAllByPatientId(patient.getId());
+        appointments.forEach(appointment -> appointment.setStatus(EntityStatus.DELETED));
+        appointmentRepository.saveAll(appointments);
         Patient savedPatient = patientRepository.save(patient);
         return new SuccessDataResult<>(patientMapper.toDetailedResponse(savedPatient), "Patient deleted successfully");
     }

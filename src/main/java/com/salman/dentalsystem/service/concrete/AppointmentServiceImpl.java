@@ -13,6 +13,7 @@ import com.salman.dentalsystem.model.entity.Patient;
 import com.salman.dentalsystem.model.entity.User;
 import com.salman.dentalsystem.model.enums.EntityStatus;
 import com.salman.dentalsystem.model.enums.ErrorCode;
+import com.salman.dentalsystem.model.enums.Role;
 import com.salman.dentalsystem.repository.AppointmentRepository;
 import com.salman.dentalsystem.result.DataResult;
 import com.salman.dentalsystem.result.PageData;
@@ -38,17 +39,21 @@ public class AppointmentServiceImpl implements AppointmentService {
     private final AppointmentRepository appointmentRepository;
 
     @Override
-    public DataResult<AppointmentDetailedResponse> create(AppointmentCreateRequest request) {
+    public DataResult<AppointmentDetailedResponse> create(UUID patientId, AppointmentCreateRequest request) {
         if (!request.getEndTime().isAfter(request.getStartTime())) {
             throw new InvalidInputException("End time must be after start time", ErrorCode.INVALID_APPOINTMENT_TIME);
         }
-        validateDentistAvailabilityForCreate(request);
-        validatePatientAvailabilityForCreate(request);
-        User dentist = userService.getDentistById(request.getDentistId());
-        Patient patient = patientService.getActivePatientById(request.getPatientId());
+        User currentUser = userService.getCurrentUser();
+        if (currentUser.getRole() != Role.DENTIST) {
+            throw new InvalidInputException("Only dentists can create appointments", ErrorCode.UNAUTHORIZED_ACTION);
+        }
+
+        validateDentistAvailabilityForCreate(currentUser.getId(), request);
+        validatePatientAvailabilityForCreate(patientId, request);
+        Patient patient = patientService.getActivePatientById(patientId);
         Appointment appointment = appointmentMapper.createRequestToEntity(request);
         appointment.setPatient(patient);
-        appointment.setDentist(dentist);
+        appointment.setDentist(currentUser);
         appointment.setStatus(EntityStatus.ACTIVE);
         Appointment savedAppointment = appointmentRepository.save(appointment);
         AppointmentDetailedResponse response = appointmentMapper.toDetailedResponse(savedAppointment);
@@ -120,9 +125,9 @@ public class AppointmentServiceImpl implements AppointmentService {
         return new SuccessDataResult<>(response, "Appointment activated successfully");
     }
 
-    private void validateDentistAvailabilityForCreate(AppointmentCreateRequest request) {
+    private void validateDentistAvailabilityForCreate(UUID dentistId, AppointmentCreateRequest request) {
         boolean hasConflict = appointmentRepository.existsByDentistIdAndDateAndStartTimeLessThanAndEndTimeGreaterThan(
-                request.getDentistId(),
+                dentistId,
                 request.getDate(),
                 request.getEndTime(),
                 request.getStartTime()
@@ -132,9 +137,9 @@ public class AppointmentServiceImpl implements AppointmentService {
         }
     }
 
-    private void validatePatientAvailabilityForCreate(AppointmentCreateRequest request) {
+    private void validatePatientAvailabilityForCreate(UUID patientId, AppointmentCreateRequest request) {
         boolean hasConflict = appointmentRepository.existsByPatientIdAndDateAndStartTimeLessThanAndEndTimeGreaterThan(
-                request.getPatientId(),
+                patientId,
                 request.getDate(),
                 request.getEndTime(),
                 request.getStartTime()

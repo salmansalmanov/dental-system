@@ -38,9 +38,6 @@ public class AppointmentUpdateRequest {
     @PositiveOrZero(message = "Paid amount must be zero or positive")
     private BigDecimal paidAmount;
 
-    @NotNull(message = "Patient ID is required")
-    private UUID patientId;
-
     @NotNull(message = "Doctor ID is required")
     private UUID dentistId;
 }

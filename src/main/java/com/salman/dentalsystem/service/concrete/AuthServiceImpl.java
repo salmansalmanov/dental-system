@@ -13,7 +13,9 @@ import com.salman.dentalsystem.model.enums.ErrorCode;
 import com.salman.dentalsystem.repository.RefreshTokenRepository;
 import com.salman.dentalsystem.repository.UserRepository;
 import com.salman.dentalsystem.result.DataResult;
+import com.salman.dentalsystem.result.Result;
 import com.salman.dentalsystem.result.SuccessDataResult;
+import com.salman.dentalsystem.result.SuccessResult;
 import com.salman.dentalsystem.security.service.JwtService;
 import com.salman.dentalsystem.service.abstraction.AuthService;
 import lombok.RequiredArgsConstructor;
@@ -79,6 +81,12 @@ public class AuthServiceImpl implements AuthService {
         refreshTokenRepository.save(refreshTokenEntity);
         RefreshResponse response = new RefreshResponse(accessToken, refreshToken);
         return new SuccessDataResult<>(response, "Tokens refreshed successfully");
+    }
+
+    @Override
+    public void revokeRefreshToken(RefreshToken refreshToken) {
+        refreshToken.setRevoked(true);
+        refreshTokenRepository.save(refreshToken);
     }
 
     private void validateRefreshToken(RefreshToken refreshTokenEntity) {

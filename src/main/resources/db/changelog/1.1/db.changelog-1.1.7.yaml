@@ -1,0 +1,26 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1.1.7-add-deleted-at-and-delete-reason-columns
+      author: salmansalmanov
+      changes:
+        - addColumn:
+            tableName: appointments
+            columns:
+              - column:
+                  name: delete_reason
+                  type: VARCHAR
+              - column:
+                  name: deleted_at
+                  type: TIMESTAMP
+        - addColumn:
+            tableName: users
+            columns:
+              - column:
+                  name: deleted_at
+                  type: TIMESTAMP
+        - addColumn:
+            tableName: patients
+            columns:
+              - column:
+                  name: deleted_at
+                  type: TIMESTAMP

@@ -11,6 +11,7 @@ import com.salman.dentalsystem.model.dto.response.AppointmentResponse;
 import com.salman.dentalsystem.model.entity.Appointment;
 import com.salman.dentalsystem.model.entity.Patient;
 import com.salman.dentalsystem.model.entity.User;
+import com.salman.dentalsystem.model.enums.AppointmentDeleteReason;
 import com.salman.dentalsystem.model.enums.EntityStatus;
 import com.salman.dentalsystem.model.enums.ErrorCode;
 import com.salman.dentalsystem.model.enums.Role;
@@ -110,6 +111,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         Appointment appointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Appointment not found with ID: " + id, ErrorCode.APPOINTMENT_NOT_FOUND));
         appointment.setStatus(EntityStatus.DELETED);
+        appointment.setDeleteReason(AppointmentDeleteReason.MANUAL);
         Appointment savedAppointment = appointmentRepository.save(appointment);
         AppointmentDetailedResponse response = appointmentMapper.toDetailedResponse(savedAppointment);
         return new SuccessDataResult<>(response, "Appointment canceled successfully");
@@ -120,6 +122,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         Appointment appointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Appointment not found with ID: " + id, ErrorCode.APPOINTMENT_NOT_FOUND));
         appointment.setStatus(EntityStatus.ACTIVE);
+        appointment.setDeleteReason(null);
         Appointment savedAppointment = appointmentRepository.save(appointment);
         AppointmentDetailedResponse response = appointmentMapper.toDetailedResponse(savedAppointment);
         return new SuccessDataResult<>(response, "Appointment activated successfully");

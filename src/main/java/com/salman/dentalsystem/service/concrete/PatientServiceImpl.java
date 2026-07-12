@@ -1,7 +1,6 @@
 package com.salman.dentalsystem.service.concrete;
 
 import com.salman.dentalsystem.exception.custom.ConflictException;
-import com.salman.dentalsystem.exception.custom.InvalidInputException;
 import com.salman.dentalsystem.exception.custom.NotFoundException;
 import com.salman.dentalsystem.mapper.PatientMapper;
 import com.salman.dentalsystem.model.dto.request.PatientCreateRequest;
@@ -10,6 +9,7 @@ import com.salman.dentalsystem.model.dto.response.PatientDetailedResponse;
 import com.salman.dentalsystem.model.dto.response.PatientResponse;
 import com.salman.dentalsystem.model.entity.Appointment;
 import com.salman.dentalsystem.model.entity.Patient;
+import com.salman.dentalsystem.model.enums.AppointmentDeleteReason;
 import com.salman.dentalsystem.model.enums.EntityStatus;
 import com.salman.dentalsystem.model.enums.ErrorCode;
 import com.salman.dentalsystem.repository.AppointmentRepository;
@@ -83,26 +83,13 @@ public class PatientServiceImpl implements PatientService {
                 .orElseThrow(() -> new NotFoundException("Patient not found with ID: " + id, ErrorCode.PATIENT_NOT_FOUND));
         patient.setStatus(EntityStatus.DELETED);
         List<Appointment> appointments = appointmentRepository.findAllByPatientId(patient.getId());
-        appointments.forEach(appointment -> appointment.setStatus(EntityStatus.DELETED));
+        appointments.forEach(appointment -> {
+            appointment.setStatus(EntityStatus.DELETED);
+            appointment.setDeleteReason(AppointmentDeleteReason.PATIENT_DELETED);
+        });
         appointmentRepository.saveAll(appointments);
         Patient savedPatient = patientRepository.save(patient);
         return new SuccessDataResult<>(patientMapper.toDetailedResponse(savedPatient), "Patient deleted successfully");
-    }
-
-    @Override
-    public DataResult<PageData<PatientResponse>> getAllDeleted(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        Page<Patient> patientPage = patientRepository.findAllByStatus(EntityStatus.DELETED, pageable);
-        PageData<PatientResponse> pageData = PageData.<PatientResponse>builder()
-                .totalPages(patientPage.getTotalPages())
-                .totalElements(patientPage.getTotalElements())
-                .firstPage(patientPage.isFirst())
-                .lastPage(patientPage.isLast())
-                .page(patientPage.getNumber())
-                .size(patientPage.getSize())
-                .content(patientPage.getContent().stream().map(patientMapper::toResponse).toList())
-                .build();
-        return new SuccessDataResult<>(pageData, "Deleted patients found successfully");
     }
 
     @Override
@@ -112,6 +99,11 @@ public class PatientServiceImpl implements PatientService {
         if (patient.getStatus() == EntityStatus.ACTIVE) {
             throw new ConflictException("Patient is already active", ErrorCode.PATIENT_ALREADY_ACTIVE);
         }
+        List<Appointment> appointments = appointmentRepository.findAllByPatientId(patient.getId());
+        appointments.forEach(appointment -> {
+            appointment.setStatus(EntityStatus.ACTIVE);
+            appointment.setDeleteReason(null);
+        });
         patient.setStatus(EntityStatus.ACTIVE);
         Patient savedPatient = patientRepository.save(patient);
         return new SuccessDataResult<>(patientMapper.toDetailedResponse(savedPatient), "Patient activated successfully");

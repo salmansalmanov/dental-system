@@ -33,6 +33,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
@@ -105,6 +106,7 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User not found with ID: " + id, ErrorCode.USER_NOT_FOUND));
         user.setStatus(EntityStatus.DELETED);
+        user.setDeletedAt(LocalDateTime.now());
         User savedUser = userRepository.save(user);
         return new SuccessDataResult<>(userMapper.toDetailedResponse(savedUser), "User deleted successfully");
     }
@@ -117,6 +119,7 @@ public class UserServiceImpl implements UserService {
             throw new ConflictException("User is already active", ErrorCode.USER_ALREADY_ACTIVE);
         }
         user.setStatus(EntityStatus.ACTIVE);
+        user.setDeletedAt(null);
         User savedUser = userRepository.save(user);
         return new SuccessDataResult<>(userMapper.toDetailedResponse(savedUser), "User activated successfully");
     }

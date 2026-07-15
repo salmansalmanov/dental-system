@@ -9,7 +9,6 @@ import com.salman.dentalsystem.model.dto.response.PatientDetailedResponse;
 import com.salman.dentalsystem.model.dto.response.PatientResponse;
 import com.salman.dentalsystem.model.entity.Appointment;
 import com.salman.dentalsystem.model.entity.Patient;
-import com.salman.dentalsystem.model.enums.AppointmentDeleteReason;
 import com.salman.dentalsystem.model.enums.EntityStatus;
 import com.salman.dentalsystem.model.enums.ErrorCode;
 import com.salman.dentalsystem.repository.AppointmentRepository;
@@ -25,6 +24,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -82,10 +82,11 @@ public class PatientServiceImpl implements PatientService {
         Patient patient = patientRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Patient not found with ID: " + id, ErrorCode.PATIENT_NOT_FOUND));
         patient.setStatus(EntityStatus.DELETED);
+        patient.setDeletedAt(LocalDateTime.now());
         List<Appointment> appointments = appointmentRepository.findAllByPatientId(patient.getId());
         appointments.forEach(appointment -> {
             appointment.setStatus(EntityStatus.DELETED);
-            appointment.setDeleteReason(AppointmentDeleteReason.PATIENT_DELETED);
+            appointment.setDeletedAt(LocalDateTime.now());
         });
         appointmentRepository.saveAll(appointments);
         Patient savedPatient = patientRepository.save(patient);
@@ -99,12 +100,14 @@ public class PatientServiceImpl implements PatientService {
         if (patient.getStatus() == EntityStatus.ACTIVE) {
             throw new ConflictException("Patient is already active", ErrorCode.PATIENT_ALREADY_ACTIVE);
         }
-        List<Appointment> appointments = appointmentRepository.findAllByPatientId(patient.getId());
+        List<Appointment> appointments = appointmentRepository.findAllByPatientIdAndStatus(patient.getId(), EntityStatus.DELETED);
         appointments.forEach(appointment -> {
             appointment.setStatus(EntityStatus.ACTIVE);
-            appointment.setDeleteReason(null);
+            appointment.setDeletedAt(null);
         });
         patient.setStatus(EntityStatus.ACTIVE);
+        patient.setDeletedAt(null);
+        appointmentRepository.saveAll(appointments);
         Patient savedPatient = patientRepository.save(patient);
         return new SuccessDataResult<>(patientMapper.toDetailedResponse(savedPatient), "Patient activated successfully");
     }

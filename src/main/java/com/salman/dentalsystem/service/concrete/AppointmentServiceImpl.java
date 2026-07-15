@@ -11,7 +11,6 @@ import com.salman.dentalsystem.model.dto.response.AppointmentResponse;
 import com.salman.dentalsystem.model.entity.Appointment;
 import com.salman.dentalsystem.model.entity.Patient;
 import com.salman.dentalsystem.model.entity.User;
-import com.salman.dentalsystem.model.enums.AppointmentDeleteReason;
 import com.salman.dentalsystem.model.enums.EntityStatus;
 import com.salman.dentalsystem.model.enums.ErrorCode;
 import com.salman.dentalsystem.model.enums.Role;
@@ -29,6 +28,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
@@ -111,7 +111,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         Appointment appointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Appointment not found with ID: " + id, ErrorCode.APPOINTMENT_NOT_FOUND));
         appointment.setStatus(EntityStatus.DELETED);
-        appointment.setDeleteReason(AppointmentDeleteReason.MANUAL);
+        appointment.setDeletedAt(LocalDateTime.now());
         Appointment savedAppointment = appointmentRepository.save(appointment);
         AppointmentDetailedResponse response = appointmentMapper.toDetailedResponse(savedAppointment);
         return new SuccessDataResult<>(response, "Appointment canceled successfully");
@@ -121,8 +121,14 @@ public class AppointmentServiceImpl implements AppointmentService {
     public DataResult<AppointmentDetailedResponse> activateById(UUID id) {
         Appointment appointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Appointment not found with ID: " + id, ErrorCode.APPOINTMENT_NOT_FOUND));
+        if (appointment.getStatus() == EntityStatus.ACTIVE) {
+            throw new InvalidInputException("Appointment is already active", ErrorCode.APPOINTMENT_CONFLICT);
+        }
+        if (appointment.getPatient().getStatus() != EntityStatus.ACTIVE) {
+            throw new InvalidInputException("Patient is deleted. You cannot activate this appointment", ErrorCode.PATIENT_NOT_ACTIVE);
+        }
         appointment.setStatus(EntityStatus.ACTIVE);
-        appointment.setDeleteReason(null);
+        appointment.setDeletedAt(null);
         Appointment savedAppointment = appointmentRepository.save(appointment);
         AppointmentDetailedResponse response = appointmentMapper.toDetailedResponse(savedAppointment);
         return new SuccessDataResult<>(response, "Appointment activated successfully");

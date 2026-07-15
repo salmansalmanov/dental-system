@@ -1,6 +1,5 @@
 package com.salman.dentalsystem.model.entity;
 
-import com.salman.dentalsystem.model.enums.AppointmentDeleteReason;
 import com.salman.dentalsystem.model.enums.EntityStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -35,8 +34,5 @@ public class Appointment extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private User dentist;
-
-    @Enumerated(EnumType.STRING)
-    private AppointmentDeleteReason deleteReason;
     private LocalDateTime deletedAt;
 }

@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1.1.8-drop-delete-reason-column-from-appointments
+      author: salmansalmanov
+      changes:
+        - dropColumn:
+            tableName: appointments
+            columnName: delete_reason

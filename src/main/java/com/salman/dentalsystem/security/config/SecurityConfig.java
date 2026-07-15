@@ -39,7 +39,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PATCH, "/v1/appointments/*/cancel").hasAnyRole("DENTIST", "ADMIN")
                         .requestMatchers(HttpMethod.PATCH, "/v1/appointments/*/activate").hasAnyRole("DENTIST", "ADMIN")
                         .requestMatchers(HttpMethod.POST, "/v1/auth/login").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/v1/auth/refresh").hasAnyRole("DENTIST", "ADMIN", "RECEPTIONIST")
+                        .requestMatchers(HttpMethod.POST, "/v1/auth/refresh").permitAll()
                         .requestMatchers(HttpMethod.POST, "/v1/auth/logout").hasAnyRole("DENTIST", "ADMIN", "RECEPTIONIST")
                         .requestMatchers(HttpMethod.POST, "/v1/patients").hasAnyRole("DENTIST", "ADMIN")
                         .requestMatchers(HttpMethod.GET, "/v1/patients/*").hasAnyRole("DENTIST", "ADMIN", "RECEPTIONIST")

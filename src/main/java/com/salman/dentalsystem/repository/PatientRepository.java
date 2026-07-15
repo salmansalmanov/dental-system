@@ -8,13 +8,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 public interface PatientRepository extends JpaRepository<Patient, UUID> {
     Optional<Patient> findByIdAndStatus(UUID id, EntityStatus status);
-
-    Page<Patient> findAllByStatus(EntityStatus status, Pageable pageable);
 
     @Query("""
                 SELECT p
@@ -33,4 +33,6 @@ public interface PatientRepository extends JpaRepository<Patient, UUID> {
             @Param("status") EntityStatus status,
             Pageable pageable
     );
+
+    List<Patient> findAllByStatusAndDeletedAtBefore(EntityStatus status, LocalDateTime threshold);
 }

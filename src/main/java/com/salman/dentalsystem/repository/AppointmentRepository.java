@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
@@ -54,4 +55,8 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID> 
             LocalTime endTime,
             LocalTime startTime
     );
+
+    List<Appointment> findAllByStatusAndDeletedAtBefore(EntityStatus status, LocalDateTime threshold);
+
+    List<Appointment> findAllByPatientIdInAndStatus(List<UUID> patientIds, EntityStatus status);
 }

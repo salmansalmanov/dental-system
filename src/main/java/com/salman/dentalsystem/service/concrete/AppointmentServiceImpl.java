@@ -65,7 +65,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     public DataResult<AppointmentDetailedResponse> getById(UUID id) {
         Appointment appointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Appointment not found with ID: " + id, ErrorCode.APPOINTMENT_NOT_FOUND));
-        AppointmentDetailedResponse response = appointmentMapper.toDetailedResponse(appointment);
+        AppointmentDetailedResponse response = buildResponse(appointment);
         return new SuccessDataResult<>(response, "Appointment found successfully");
     }
 
@@ -102,7 +102,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         Appointment updatedAppointment = appointmentMapper.updateRequestToEntity(request, existingAppointment);
         updatedAppointment.setDentist(dentist);
         Appointment savedAppointment = appointmentRepository.save(updatedAppointment);
-        AppointmentDetailedResponse response = appointmentMapper.toDetailedResponse(savedAppointment);
+        AppointmentDetailedResponse response = buildResponse(savedAppointment);
         return new SuccessDataResult<>(response, "Appointment updated successfully");
     }
 
@@ -113,7 +113,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointment.setStatus(EntityStatus.DELETED);
         appointment.setDeletedAt(LocalDateTime.now());
         Appointment savedAppointment = appointmentRepository.save(appointment);
-        AppointmentDetailedResponse response = appointmentMapper.toDetailedResponse(savedAppointment);
+        AppointmentDetailedResponse response = buildResponse(savedAppointment);
         return new SuccessDataResult<>(response, "Appointment canceled successfully");
     }
 
@@ -130,7 +130,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointment.setStatus(EntityStatus.ACTIVE);
         appointment.setDeletedAt(null);
         Appointment savedAppointment = appointmentRepository.save(appointment);
-        AppointmentDetailedResponse response = appointmentMapper.toDetailedResponse(savedAppointment);
+        AppointmentDetailedResponse response = buildResponse(savedAppointment);
         return new SuccessDataResult<>(response, "Appointment activated successfully");
     }
 
@@ -182,5 +182,16 @@ public class AppointmentServiceImpl implements AppointmentService {
         if (hasConflict) {
             throw new ConflictException("Patient already has another appointment during this time", ErrorCode.APPOINTMENT_CONFLICT);
         }
+    }
+
+    private AppointmentDetailedResponse buildResponse(Appointment appointment) {
+        User currentUser = userService.getCurrentUser();
+        AppointmentDetailedResponse response = appointmentMapper.toDetailedResponse(appointment);
+        if (currentUser.getRole() != Role.ADMIN) {
+            response.setPrice(null);
+            response.setPaidAmount(null);
+            response.setRemainingAmount(null);
+        }
+        return response;
     }
 }

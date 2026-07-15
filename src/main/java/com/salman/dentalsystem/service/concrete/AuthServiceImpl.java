@@ -43,14 +43,17 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public DataResult<LoginResponse> login(LoginRequest request) {
+        User user = userRepository.findByUsername(request.getUsername())
+                .orElseThrow(() -> new NotFoundException("User not found with username: " + request.getUsername(), ErrorCode.USER_NOT_FOUND));
+        if (user.getStatus() != EntityStatus.ACTIVE) {
+            throw new NotFoundException("User not found", ErrorCode.USER_NOT_FOUND);
+        }
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getUsername(),
                         request.getPassword()
                 )
         );
-        User user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new NotFoundException("User not found with username: " + request.getUsername(), ErrorCode.USER_NOT_FOUND));
         String accessToken = jwtService.generateAccessToken(user.getUsername(), user.getRole());
         UUID refreshToken = UUID.randomUUID();
 
@@ -96,8 +99,7 @@ public class AuthServiceImpl implements AuthService {
         User user = userService.getCurrentUser();
         RefreshToken refreshToken = refreshTokenRepository.findByUser(user)
                 .orElseThrow(() -> new NotFoundException("User not found", ErrorCode.USER_NOT_FOUND));
-        refreshToken.setRevoked(true);
-        refreshTokenRepository.save(refreshToken);
+        revokeRefreshToken(refreshToken);
         return new SuccessResult("User logged out");
     }
 

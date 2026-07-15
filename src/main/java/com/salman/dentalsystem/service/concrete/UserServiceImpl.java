@@ -31,6 +31,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
@@ -102,12 +103,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public DataResult<UserDetailedResponse> deleteById(UUID id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User not found with ID: " + id, ErrorCode.USER_NOT_FOUND));
         user.setStatus(EntityStatus.DELETED);
         user.setDeletedAt(LocalDateTime.now());
         User savedUser = userRepository.save(user);
+        refreshTokenRepository.findByUser(savedUser)
+                .ifPresent(refreshToken -> {
+                    refreshToken.setRevoked(true);
+                    refreshTokenRepository.save(refreshToken);
+                });
         return new SuccessDataResult<>(userMapper.toDetailedResponse(savedUser), "User deleted successfully");
     }
 

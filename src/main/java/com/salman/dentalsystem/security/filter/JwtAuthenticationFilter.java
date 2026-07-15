@@ -1,5 +1,10 @@
 package com.salman.dentalsystem.security.filter;
 
+import com.salman.dentalsystem.exception.custom.NotFoundException;
+import com.salman.dentalsystem.model.entity.User;
+import com.salman.dentalsystem.model.enums.EntityStatus;
+import com.salman.dentalsystem.model.enums.ErrorCode;
+import com.salman.dentalsystem.repository.UserRepository;
 import com.salman.dentalsystem.security.service.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -21,6 +26,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
+    private final UserRepository userRepository;
 
     @Override
     @NullMarked
@@ -35,23 +41,36 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             String jwt = authHeader.substring(7);
             String username = jwtService.extractUsername(jwt);
-            String role = jwtService.extractRole(jwt);
 
-            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                if (jwtService.isTokenValid(jwt, username)) {
-                    SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + role);
-                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                            username,
-                            null,
-                            List.of(authority)
-                    );
-                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(authToken);
+            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null && jwtService.isTokenValid(jwt, username)) {
+                User user = userRepository.findByUsername(username)
+                        .orElseThrow(() -> new NotFoundException("User not found", ErrorCode.USER_NOT_FOUND));
+
+                if (user.getStatus() != EntityStatus.ACTIVE) {
+                    SecurityContextHolder.clearContext();
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.setContentType("application/json");
+                    response.setCharacterEncoding("UTF-8");
+                    response.getWriter().write("""
+                            {
+                                "message": "User is not active"
+                            }
+                            """);
+                    return;
                 }
+
+                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                        user.getUsername(),
+                        null,
+                        List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole())
+                ));
+
+                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authToken);
+
             }
         } catch (Exception e) {
-            filterChain.doFilter(request, response);
-            return;
+            SecurityContextHolder.clearContext();
         }
         filterChain.doFilter(request, response);
     }

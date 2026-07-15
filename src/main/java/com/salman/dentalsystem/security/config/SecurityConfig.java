@@ -32,7 +32,7 @@ public class SecurityConfig {
                         .authenticationEntryPoint(jwtAuthenticationEntryPoint)
                         .accessDeniedHandler(customAccessDeniedHandler))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "/v1/patients/{id}/appointments").hasRole("DENTIST")
+                        .requestMatchers(HttpMethod.POST, "/v1/patients/{id}/appointments").hasAnyRole("DENTIST", "ADMIN")
                         .requestMatchers(HttpMethod.GET, "/v1/appointments/*").hasAnyRole("DENTIST", "ADMIN", "RECEPTIONIST")
                         .requestMatchers(HttpMethod.GET, "/v1/patients/*/appointments").hasAnyRole("DENTIST", "ADMIN", "RECEPTIONIST")
                         .requestMatchers(HttpMethod.PUT, "/v1/appointments/*").hasAnyRole("DENTIST", "ADMIN")

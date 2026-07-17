@@ -2,6 +2,7 @@ package com.salman.dentalsystem.service.abstraction;
 
 import com.salman.dentalsystem.model.dto.request.PatientCreateRequest;
 import com.salman.dentalsystem.model.dto.request.PatientUpdateRequest;
+import com.salman.dentalsystem.model.dto.response.PatientCountResponse;
 import com.salman.dentalsystem.model.dto.response.PatientDetailedResponse;
 import com.salman.dentalsystem.model.dto.response.PatientResponse;
 import com.salman.dentalsystem.model.entity.Patient;
@@ -27,4 +28,6 @@ public interface PatientService {
     Patient getActivePatientById(UUID id);
 
     Patient getPatientById(UUID id);
+
+    DataResult<PatientCountResponse> getAllPatientsCount();
 }

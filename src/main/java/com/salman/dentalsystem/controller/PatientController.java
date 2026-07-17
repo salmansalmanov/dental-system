@@ -2,6 +2,7 @@ package com.salman.dentalsystem.controller;
 
 import com.salman.dentalsystem.model.dto.request.PatientCreateRequest;
 import com.salman.dentalsystem.model.dto.request.PatientUpdateRequest;
+import com.salman.dentalsystem.model.dto.response.PatientCountResponse;
 import com.salman.dentalsystem.model.dto.response.PatientDetailedResponse;
 import com.salman.dentalsystem.model.dto.response.PatientResponse;
 import com.salman.dentalsystem.model.enums.EntityStatus;
@@ -46,6 +47,13 @@ public class PatientController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(patientService.getAll(search, status, page, size));
+    }
+
+    @GetMapping("/count")
+    public ResponseEntity<DataResult<PatientCountResponse>> getAllPatientsCount() {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(patientService.getAllPatientsCount());
     }
 
     @PutMapping("/{id}")

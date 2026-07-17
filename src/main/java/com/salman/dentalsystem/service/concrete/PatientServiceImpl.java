@@ -5,6 +5,7 @@ import com.salman.dentalsystem.exception.custom.NotFoundException;
 import com.salman.dentalsystem.mapper.PatientMapper;
 import com.salman.dentalsystem.model.dto.request.PatientCreateRequest;
 import com.salman.dentalsystem.model.dto.request.PatientUpdateRequest;
+import com.salman.dentalsystem.model.dto.response.PatientCountResponse;
 import com.salman.dentalsystem.model.dto.response.PatientDetailedResponse;
 import com.salman.dentalsystem.model.dto.response.PatientResponse;
 import com.salman.dentalsystem.model.entity.Appointment;
@@ -122,5 +123,12 @@ public class PatientServiceImpl implements PatientService {
     public Patient getPatientById(UUID id) {
         return patientRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Patient not found with ID: " + id, ErrorCode.PATIENT_NOT_FOUND));
+    }
+
+    @Override
+    public DataResult<PatientCountResponse> getAllPatientsCount() {
+        Long count = patientRepository.count();
+        PatientCountResponse response = new PatientCountResponse(count);
+        return new SuccessDataResult<>(response, "Patient count found successfully");
     }
 }

@@ -8,6 +8,7 @@ import com.salman.dentalsystem.model.dto.request.AppointmentCreateRequest;
 import com.salman.dentalsystem.model.dto.request.AppointmentUpdateRequest;
 import com.salman.dentalsystem.model.dto.response.AppointmentDetailedResponse;
 import com.salman.dentalsystem.model.dto.response.AppointmentResponse;
+import com.salman.dentalsystem.model.dto.response.AppointmentTodayCountResponse;
 import com.salman.dentalsystem.model.entity.Appointment;
 import com.salman.dentalsystem.model.entity.Patient;
 import com.salman.dentalsystem.model.entity.User;
@@ -28,6 +29,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -130,6 +132,13 @@ public class AppointmentServiceImpl implements AppointmentService {
         Appointment savedAppointment = appointmentRepository.save(appointment);
         AppointmentDetailedResponse response = buildResponse(savedAppointment);
         return new SuccessDataResult<>(response, "Appointment activated successfully");
+    }
+
+    @Override
+    public DataResult<AppointmentTodayCountResponse> getTodayAppointmentCount() {
+        Long count = appointmentRepository.countByDate(LocalDate.now());
+        AppointmentTodayCountResponse response = new AppointmentTodayCountResponse(count);
+        return new SuccessDataResult<>(response, "Appointment today count successfully");
     }
 
     private void validateDentistAvailabilityForCreate(UUID dentistId, AppointmentCreateRequest request) {

@@ -4,6 +4,7 @@ import com.salman.dentalsystem.model.dto.request.AppointmentCreateRequest;
 import com.salman.dentalsystem.model.dto.request.AppointmentUpdateRequest;
 import com.salman.dentalsystem.model.dto.response.AppointmentDetailedResponse;
 import com.salman.dentalsystem.model.dto.response.AppointmentResponse;
+import com.salman.dentalsystem.model.dto.response.AppointmentTodayCountResponse;
 import com.salman.dentalsystem.model.enums.EntityStatus;
 import com.salman.dentalsystem.result.DataResult;
 import com.salman.dentalsystem.result.PageData;
@@ -22,4 +23,6 @@ public interface AppointmentService {
     DataResult<AppointmentDetailedResponse> cancelById(UUID id);
 
     DataResult<AppointmentDetailedResponse> activateById(UUID id);
+
+    DataResult<AppointmentTodayCountResponse> getTodayAppointmentCount();
 }

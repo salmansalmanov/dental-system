@@ -59,4 +59,6 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID> 
     List<Appointment> findAllByStatusAndDeletedAtBefore(EntityStatus status, LocalDateTime threshold);
 
     List<Appointment> findAllByPatientIdInAndStatus(List<UUID> patientIds, EntityStatus status);
+
+    Long countByDate(LocalDate date);
 }

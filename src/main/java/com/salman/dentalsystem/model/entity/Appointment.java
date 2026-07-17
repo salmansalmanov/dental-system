@@ -11,6 +11,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -34,5 +36,8 @@ public class Appointment extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private User dentist;
+
+    @OneToMany(mappedBy = "appointment", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<XraySession> xraySessions = new ArrayList<>();
     private LocalDateTime deletedAt;
 }

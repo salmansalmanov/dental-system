@@ -22,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -47,5 +48,13 @@ public class XrayImageServiceImpl implements XrayImageService {
         XrayImage savedImage = xrayImageRepository.save(xrayImage);
         XrayImageResponse response = xrayImageMapper.toResponse(savedImage);
         return new SuccessDataResult<>(response, "X-ray image uploaded successfully");
+    }
+
+    @Override
+    public byte[] getImageBytes(UUID id) {
+        XrayImage xrayImage = xrayImageRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Image not found", ErrorCode.IMAGE_NOT_FOUND));
+
+        return fileStorageService.load(xrayImage.getStoredFileName());
     }
 }

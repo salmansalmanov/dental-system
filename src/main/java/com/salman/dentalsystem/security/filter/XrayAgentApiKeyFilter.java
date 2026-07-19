@@ -20,7 +20,7 @@ public class XrayAgentApiKeyFilter extends OncePerRequestFilter {
     @Override
     @NullMarked
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        if (request.getRequestURI().startsWith("/v1/xray")) {
+        if (request.getRequestURI().startsWith("/v1/xray/upload")) {
             String providedKey = request.getHeader("Xray-Agent-Api-Key");
             if (providedKey == null || !providedKey.equals(expectedApiKey)) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

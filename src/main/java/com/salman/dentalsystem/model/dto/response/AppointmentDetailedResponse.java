@@ -9,6 +9,7 @@ import lombok.Setter;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -26,4 +27,5 @@ public class AppointmentDetailedResponse {
     private BigDecimal price;
     private BigDecimal paidAmount;
     private BigDecimal remainingAmount;
+    private List<XrayImageResponse> xrayImages;
 }

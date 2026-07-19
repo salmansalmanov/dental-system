@@ -4,18 +4,22 @@ import com.salman.dentalsystem.exception.custom.ConflictException;
 import com.salman.dentalsystem.exception.custom.InvalidInputException;
 import com.salman.dentalsystem.exception.custom.NotFoundException;
 import com.salman.dentalsystem.mapper.AppointmentMapper;
+import com.salman.dentalsystem.mapper.XrayImageMapper;
 import com.salman.dentalsystem.model.dto.request.AppointmentCreateRequest;
 import com.salman.dentalsystem.model.dto.request.AppointmentUpdateRequest;
 import com.salman.dentalsystem.model.dto.response.AppointmentDetailedResponse;
 import com.salman.dentalsystem.model.dto.response.AppointmentResponse;
 import com.salman.dentalsystem.model.dto.response.AppointmentTodayCountResponse;
+import com.salman.dentalsystem.model.dto.response.XrayImageResponse;
 import com.salman.dentalsystem.model.entity.Appointment;
 import com.salman.dentalsystem.model.entity.Patient;
 import com.salman.dentalsystem.model.entity.User;
+import com.salman.dentalsystem.model.entity.XrayImage;
 import com.salman.dentalsystem.model.enums.EntityStatus;
 import com.salman.dentalsystem.model.enums.ErrorCode;
 import com.salman.dentalsystem.model.enums.Role;
 import com.salman.dentalsystem.repository.AppointmentRepository;
+import com.salman.dentalsystem.repository.XrayImageRepository;
 import com.salman.dentalsystem.result.DataResult;
 import com.salman.dentalsystem.result.PageData;
 import com.salman.dentalsystem.result.SuccessDataResult;
@@ -31,6 +35,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -40,6 +45,8 @@ public class AppointmentServiceImpl implements AppointmentService {
     private final PatientService patientService;
     private final AppointmentMapper appointmentMapper;
     private final AppointmentRepository appointmentRepository;
+    private final XrayImageRepository xrayImageRepository;
+    private final XrayImageMapper xrayImageMapper;
 
     @Override
     public DataResult<AppointmentDetailedResponse> create(UUID patientId, AppointmentCreateRequest request) {
@@ -67,7 +74,12 @@ public class AppointmentServiceImpl implements AppointmentService {
     public DataResult<AppointmentDetailedResponse> getById(UUID id) {
         Appointment appointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Appointment not found with ID: " + id, ErrorCode.APPOINTMENT_NOT_FOUND));
+        List<XrayImage> images = xrayImageRepository.findAllByAppointmentId(id);
+        List<XrayImageResponse> xrayImages = images.stream()
+                .map(xrayImageMapper::toResponse)
+                .toList();
         AppointmentDetailedResponse response = buildResponse(appointment);
+        response.setXrayImages(xrayImages);
         return new SuccessDataResult<>(response, "Appointment found successfully");
     }
 

@@ -16,8 +16,8 @@ import java.util.UUID;
 
 @Service
 public class LocalFileStorageService implements FileStorageService {
-    private final Path rootLocation;
     private static final Set<String> ALLOWED_EXTENSIONS = Set.of("png");
+    private final Path rootLocation;
 
     public LocalFileStorageService(@Value("${spring.file.storage.path}") String storagePath) {
         this.rootLocation = Paths.get(storagePath);
@@ -61,8 +61,8 @@ public class LocalFileStorageService implements FileStorageService {
         }
 
         return new StoredFile(
-                originalFileName,
                 storedFileName,
+                originalFileName,
                 destination.toString(),
                 contentType,
                 file.getSize()

@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.UUID;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/v1/xray")
@@ -24,5 +26,12 @@ public class XrayImageController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(xrayImageService.uploadXrayImage(agentId, file));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<byte[]> getImage(@PathVariable UUID id) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(xrayImageService.getImageBytes(id));
     }
 }

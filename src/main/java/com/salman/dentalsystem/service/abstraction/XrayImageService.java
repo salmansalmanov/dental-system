@@ -5,6 +5,10 @@ import com.salman.dentalsystem.model.enums.XrayAgent;
 import com.salman.dentalsystem.result.DataResult;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.UUID;
+
 public interface XrayImageService {
     DataResult<XrayImageResponse> uploadXrayImage(XrayAgent agentId, MultipartFile file);
+
+    byte[] getImageBytes(UUID id);
 }

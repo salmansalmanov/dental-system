@@ -2,6 +2,7 @@ package com.salman.dentalsystem.model.entity;
 
 import com.salman.dentalsystem.model.enums.EntityStatus;
 import com.salman.dentalsystem.model.enums.Role;
+import com.salman.dentalsystem.model.enums.XrayAgent;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -26,6 +27,9 @@ public class User extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private EntityStatus status;
+
+    @Enumerated(EnumType.STRING)
+    private XrayAgent xrayAgent;
 
     @Enumerated(EnumType.STRING)
     private Role role;

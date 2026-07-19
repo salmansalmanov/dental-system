@@ -22,3 +22,9 @@ spring:
       expiration: ${ACCESS_TOKEN_EXPIRATION}
     refresh:
       expiration: ${REFRESH_TOKEN_EXPIRATION}
+  file:
+    storage:
+      path: ${XRAY_STORAGE_PATH}
+  xray:
+    agent:
+      api-key: ${XRAY_AGENT_API_KEY}

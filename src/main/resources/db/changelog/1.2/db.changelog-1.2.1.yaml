@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1.2.1-drop-appointment_status-column
+      author: salmansalmanov
+      changes:
+        - dropColumn:
+            tableName: appointments
+            columnName: appointment_status

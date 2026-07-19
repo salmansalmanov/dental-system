@@ -57,6 +57,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/v1/users/me").hasAnyRole("ADMIN", "DENTIST", "RECEPTIONIST")
                         .requestMatchers(HttpMethod.PATCH, "/v1/users/me/password").hasAnyRole("ADMIN", "DENTIST", "RECEPTIONIST")
                         .requestMatchers(HttpMethod.PATCH, "/v1/users/*/reset-password").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/v1/appointments").hasAnyRole("DENTIST", "ADMIN", "RECEPTIONIST")
+                        .requestMatchers(HttpMethod.GET, "/v1/patients/count").hasAnyRole("DENTIST", "ADMIN", "RECEPTIONIST")
+                        .requestMatchers(HttpMethod.POST, "/v1/xray/upload").permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(sessionManagement -> sessionManagement
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))

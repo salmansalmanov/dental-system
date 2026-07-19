@@ -1,0 +1,63 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-xray-images-table
+      author: salmansalmanov
+      changes:
+        - createTable:
+            tableName: xray_images
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: stored_file_name
+                  type: VARCHAR
+                  constraints:
+                    nullable: false
+              - column:
+                  name: original_file_name
+                  type: VARCHAR
+                  constraints:
+                    nullable: false
+              - column:
+                  name: content_type
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: file_size
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: file_path
+                  type: VARCHAR(500)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: appointment_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: xray_images
+            baseColumnNames: appointment_id
+            referencedTableName: appointments
+            referencedColumnNames: id
+            constraintName: fk_xray_images_appointment
+            onDelete: CASCADE

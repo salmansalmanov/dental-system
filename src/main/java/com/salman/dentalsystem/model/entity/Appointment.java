@@ -38,6 +38,6 @@ public class Appointment extends BaseEntity {
     private User dentist;
 
     @OneToMany(mappedBy = "appointment", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<XraySession> xraySessions = new ArrayList<>();
+    private List<XrayImage> xrayImages;
     private LocalDateTime deletedAt;
 }

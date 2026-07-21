@@ -87,4 +87,11 @@ public class PatientController {
                 .status(HttpStatus.OK)
                 .body(patientService.deleteById(id));
     }
+
+    @DeleteMapping("/empty-trash")
+    public ResponseEntity<Result> deleteAllTrashedPatients() {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(patientService.deleteAllTrashed());
+    }
 }

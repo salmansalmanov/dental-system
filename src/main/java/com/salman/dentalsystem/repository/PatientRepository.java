@@ -35,4 +35,6 @@ public interface PatientRepository extends JpaRepository<Patient, UUID> {
     );
 
     List<Patient> findAllByStatusAndDeletedAtBefore(EntityStatus status, LocalDateTime threshold);
+
+    List<Patient> findAllByStatus(EntityStatus status);
 }

@@ -28,4 +28,6 @@ public interface PatientService {
     DataResult<PatientCountResponse> getAllPatientsCount();
 
     Result deleteById(UUID id);
+
+    Result deleteAllTrashed();
 }

@@ -74,6 +74,10 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/v1/xray/*").hasAnyRole("DENTIST", "ADMIN", "RECEPTIONIST")
                         .requestMatchers(HttpMethod.GET, "/v1/appointments/today").hasAnyRole("DENTIST", "ADMIN", "RECEPTIONIST")
                         .requestMatchers(HttpMethod.GET, "/v1/appointments/trash").hasAnyRole("DENTIST", "ADMIN", "RECEPTIONIST")
+                        .requestMatchers(HttpMethod.DELETE, "/v1/appointments/*").hasAnyRole("ADMIN", "DENTIST")
+                        .requestMatchers(HttpMethod.DELETE, "/v1/appointments/empty-trash").hasAnyRole("ADMIN", "DENTIST")
+                        .requestMatchers(HttpMethod.DELETE, "/v1/patients/*").hasAnyRole("ADMIN", "DENTIST")
+                        .requestMatchers(HttpMethod.DELETE, "/v1/patients/empty-trash").hasAnyRole("ADMIN", "DENTIST")
                         .anyRequest().authenticated())
                 .sessionManagement(sessionManagement -> sessionManagement
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))

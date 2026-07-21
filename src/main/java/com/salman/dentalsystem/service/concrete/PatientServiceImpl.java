@@ -130,9 +130,21 @@ public class PatientServiceImpl implements PatientService {
     public Result deleteById(UUID id) {
         Patient patient = patientRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Patient not found with ID: " + id, ErrorCode.PATIENT_NOT_FOUND));
-        List<Appointment> appointments = appointmentRepository.findAllByPatientId(patient.getId());
+        List<Appointment> appointments = appointmentRepository.findAllByPatientIdAndStatusIn(patient.getId(), List.of(EntityStatus.TRASH));
         appointmentRepository.deleteAll(appointments);
         patientRepository.deleteById(id);
         return new SuccessResult("Patient deleted successfully");
+    }
+
+    @Override
+    @Transactional
+    public Result deleteAllTrashed() {
+        List<Patient> patients = patientRepository.findAllByStatus(EntityStatus.TRASH);
+        for (Patient patient : patients) {
+            List<Appointment> appointments = appointmentRepository.findAllByPatientIdAndStatusIn(patient.getId(), List.of(EntityStatus.TRASH));
+            appointmentRepository.deleteAll(appointments);
+            patientRepository.deleteById(patient.getId());
+        }
+        return new SuccessResult("All patients deleted successfully");
     }
 }

@@ -7,10 +7,7 @@ import com.salman.dentalsystem.mapper.AppointmentMapper;
 import com.salman.dentalsystem.mapper.XrayImageMapper;
 import com.salman.dentalsystem.model.dto.request.AppointmentCreateRequest;
 import com.salman.dentalsystem.model.dto.request.AppointmentUpdateRequest;
-import com.salman.dentalsystem.model.dto.response.AppointmentDetailedResponse;
-import com.salman.dentalsystem.model.dto.response.AppointmentResponse;
-import com.salman.dentalsystem.model.dto.response.AppointmentTodayCountResponse;
-import com.salman.dentalsystem.model.dto.response.XrayImageResponse;
+import com.salman.dentalsystem.model.dto.response.*;
 import com.salman.dentalsystem.model.entity.Appointment;
 import com.salman.dentalsystem.model.entity.Patient;
 import com.salman.dentalsystem.model.entity.User;
@@ -66,7 +63,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointment.setDentist(currentUser);
         appointment.setStatus(EntityStatus.ACTIVE);
         Appointment savedAppointment = appointmentRepository.save(appointment);
-        AppointmentDetailedResponse response = buildResponse(savedAppointment);
+        AppointmentDetailedResponse response = appointmentMapper.toDetailedResponse(savedAppointment);
         return new SuccessDataResult<>(response, "Appointment created successfully");
     }
 
@@ -78,7 +75,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         List<XrayImageResponse> xrayImages = images.stream()
                 .map(xrayImageMapper::toResponse)
                 .toList();
-        AppointmentDetailedResponse response = buildResponse(appointment);
+        AppointmentDetailedResponse response = appointmentMapper.toDetailedResponse(appointment);
         response.setXrayImages(xrayImages);
         return new SuccessDataResult<>(response, "Appointment found successfully");
     }
@@ -86,7 +83,11 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Override
     public DataResult<PageData<AppointmentResponse>> getAllByPatientId(UUID patientId, EntityStatus status, int page, int size) {
         Patient patient = patientService.getPatientById(patientId);
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by(Sort.Direction.DESC, "date").and(Sort.by(Sort.Direction.DESC, "startTime"))
+        );
         Page<Appointment> appointmentPage = appointmentRepository.findAllByPatientIdAndStatus(patient.getId(), status, pageable);
         PageData<AppointmentResponse> pageData = new PageData<>(
                 appointmentPage.getTotalPages(),
@@ -110,11 +111,25 @@ public class AppointmentServiceImpl implements AppointmentService {
         }
         Appointment existingAppointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Appointment not found with ID: " + id, ErrorCode.APPOINTMENT_NOT_FOUND));
+
+        User currentUser = userService.getCurrentUser();
+
+        boolean isAdmin = currentUser.getRole() != null && currentUser.getRole().name().equals("ADMIN");
+
+        if (!isAdmin && !currentUser.getId().equals(existingAppointment.getDentist().getId())) {
+            throw new InvalidInputException("Only the appointment owner can modify the appointment", ErrorCode.UNAUTHORIZED_ACTION);
+        }
+
+        if (currentUser.getStatus() != EntityStatus.ACTIVE) {
+            throw new InvalidInputException("Only active users can modify appointments", ErrorCode.UNAUTHORIZED_ACTION);
+        }
+
         validateDentistAvailabilityForUpdate(id, existingAppointment.getDentist().getId(), request);
         validatePatientAvailabilityForUpdate(id, existingAppointment.getPatient().getId(), request);
+
         Appointment updatedAppointment = appointmentMapper.updateRequestToEntity(request, existingAppointment);
         Appointment savedAppointment = appointmentRepository.save(updatedAppointment);
-        AppointmentDetailedResponse response = buildResponse(savedAppointment);
+        AppointmentDetailedResponse response = appointmentMapper.toDetailedResponse(savedAppointment);
         return new SuccessDataResult<>(response, "Appointment updated successfully");
     }
 
@@ -122,10 +137,15 @@ public class AppointmentServiceImpl implements AppointmentService {
     public DataResult<AppointmentDetailedResponse> cancelById(UUID id) {
         Appointment appointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Appointment not found with ID: " + id, ErrorCode.APPOINTMENT_NOT_FOUND));
+        User currentUser = userService.getCurrentUser();
+        boolean isAdmin = currentUser.getRole() != null && currentUser.getRole().equals(Role.ADMIN);
+        if (!isAdmin && !currentUser.getId().equals(appointment.getDentist().getId())) {
+            throw new InvalidInputException("Only the appointment owner can cancel the appointment", ErrorCode.UNAUTHORIZED_ACTION);
+        }
         appointment.setStatus(EntityStatus.DELETED);
         appointment.setDeletedAt(LocalDateTime.now());
         Appointment savedAppointment = appointmentRepository.save(appointment);
-        AppointmentDetailedResponse response = buildResponse(savedAppointment);
+        AppointmentDetailedResponse response = appointmentMapper.toDetailedResponse(savedAppointment);
         return new SuccessDataResult<>(response, "Appointment canceled successfully");
     }
 
@@ -133,6 +153,11 @@ public class AppointmentServiceImpl implements AppointmentService {
     public DataResult<AppointmentDetailedResponse> activateById(UUID id) {
         Appointment appointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Appointment not found with ID: " + id, ErrorCode.APPOINTMENT_NOT_FOUND));
+        User currentUser = userService.getCurrentUser();
+        boolean isAdmin = currentUser.getRole() != null && currentUser.getRole().equals(Role.ADMIN);
+        if (!isAdmin && !currentUser.getId().equals(appointment.getDentist().getId())) {
+            throw new InvalidInputException("Only the appointment owner can cancel the appointment", ErrorCode.UNAUTHORIZED_ACTION);
+        }
         if (appointment.getStatus() == EntityStatus.ACTIVE) {
             throw new InvalidInputException("Appointment is already active", ErrorCode.APPOINTMENT_CONFLICT);
         }
@@ -142,7 +167,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointment.setStatus(EntityStatus.ACTIVE);
         appointment.setDeletedAt(null);
         Appointment savedAppointment = appointmentRepository.save(appointment);
-        AppointmentDetailedResponse response = buildResponse(savedAppointment);
+        AppointmentDetailedResponse response = appointmentMapper.toDetailedResponse(savedAppointment);
         return new SuccessDataResult<>(response, "Appointment activated successfully");
     }
 
@@ -151,6 +176,32 @@ public class AppointmentServiceImpl implements AppointmentService {
         Long count = appointmentRepository.countByDate(LocalDate.now());
         AppointmentTodayCountResponse response = new AppointmentTodayCountResponse(count);
         return new SuccessDataResult<>(response, "Appointment today count successfully");
+    }
+
+    @Override
+    public DataResult<PageData<AppointmentTodayResponse>> getAllForToday(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("startTime").ascending());
+        Page<Appointment> appointmentPage = appointmentRepository.findAllForToday(pageable);
+
+        PageData<AppointmentTodayResponse> pageData = new PageData<>(
+                appointmentPage.getTotalPages(),
+                appointmentPage.getTotalElements(),
+                appointmentPage.isFirst(),
+                appointmentPage.isLast(),
+                appointmentPage.getNumber(),
+                appointmentPage.getSize(),
+                appointmentPage.getContent().stream()
+                        .map(appointment -> new AppointmentTodayResponse(
+                                appointment.getId(),
+                                appointment.getPatient().getName() + " " + appointment.getPatient().getSurname(),
+                                appointment.getDentist().getName() + " " + appointment.getDentist().getSurname(),
+                                appointment.getStartTime(),
+                                appointment.getEndTime()
+                        ))
+                        .toList()
+        );
+
+        return new SuccessDataResult<>(pageData, "Today's appointments found successfully");
     }
 
     private void validateDentistAvailabilityForCreate(UUID dentistId, AppointmentCreateRequest request) {

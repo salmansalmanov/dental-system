@@ -5,6 +5,7 @@ import com.salman.dentalsystem.model.dto.request.AppointmentUpdateRequest;
 import com.salman.dentalsystem.model.dto.response.AppointmentDetailedResponse;
 import com.salman.dentalsystem.model.dto.response.AppointmentResponse;
 import com.salman.dentalsystem.model.dto.response.AppointmentTodayCountResponse;
+import com.salman.dentalsystem.model.dto.response.AppointmentTodayResponse;
 import com.salman.dentalsystem.model.enums.EntityStatus;
 import com.salman.dentalsystem.model.enums.Role;
 import com.salman.dentalsystem.result.DataResult;
@@ -44,13 +45,23 @@ public class AppointmentController {
     @GetMapping("/patients/{patientId}/appointments")
     public ResponseEntity<DataResult<PageData<AppointmentResponse>>> getAllAppointmentsByPatientId(
             @PathVariable UUID patientId,
-            @RequestParam EntityStatus status,
+            @RequestParam(required = false) EntityStatus status,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size
     ) {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(appointmentService.getAllByPatientId(patientId, status, page, size));
+    }
+
+    @GetMapping("/appointments/today")
+    public ResponseEntity<DataResult<PageData<AppointmentTodayResponse>>> getAllTodayAppointments(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(appointmentService.getAllForToday(page, size));
     }
 
     @GetMapping("/appointments")

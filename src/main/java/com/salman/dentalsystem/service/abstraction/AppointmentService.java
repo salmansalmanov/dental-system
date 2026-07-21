@@ -5,10 +5,12 @@ import com.salman.dentalsystem.model.dto.request.AppointmentUpdateRequest;
 import com.salman.dentalsystem.model.dto.response.AppointmentDetailedResponse;
 import com.salman.dentalsystem.model.dto.response.AppointmentResponse;
 import com.salman.dentalsystem.model.dto.response.AppointmentTodayCountResponse;
+import com.salman.dentalsystem.model.dto.response.AppointmentTodayResponse;
 import com.salman.dentalsystem.model.enums.EntityStatus;
 import com.salman.dentalsystem.result.DataResult;
 import com.salman.dentalsystem.result.PageData;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface AppointmentService {
@@ -25,4 +27,6 @@ public interface AppointmentService {
     DataResult<AppointmentDetailedResponse> activateById(UUID id);
 
     DataResult<AppointmentTodayCountResponse> getTodayAppointmentCount();
+
+    DataResult<PageData<AppointmentTodayResponse>> getAllForToday(int page, int size);
 }

@@ -71,7 +71,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public DataResult<UserDetailedResponse> getById(UUID id) {
-        User foundUser = userRepository.findByIdAndStatusNot(id, EntityStatus.DELETED)
+        User foundUser = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User not found with ID: " + id, ErrorCode.USER_NOT_FOUND));
         UserDetailedResponse userDetailedResponse = userMapper.toDetailedResponse(foundUser);
         return new SuccessDataResult<>(userDetailedResponse, "User found successfully");
@@ -107,6 +107,13 @@ public class UserServiceImpl implements UserService {
     public DataResult<UserDetailedResponse> deleteById(UUID id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User not found with ID: " + id, ErrorCode.USER_NOT_FOUND));
+        User currentUser = getCurrentUser();
+        if (user.getId().equals(currentUser.getId())) {
+            throw new InvalidInputException("You cannot delete yourself", ErrorCode.UNAUTHORIZED_ACTION);
+        }
+        if (user.getRole() == Role.ADMIN) {
+            throw new InvalidInputException("Admin users cannot be deleted", ErrorCode.UNAUTHORIZED_ACTION);
+        }
         user.setStatus(EntityStatus.DELETED);
         user.setDeletedAt(LocalDateTime.now());
         User savedUser = userRepository.save(user);

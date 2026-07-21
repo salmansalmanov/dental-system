@@ -1,6 +1,7 @@
 package com.salman.dentalsystem.model.dto.request;
 
 import com.salman.dentalsystem.model.enums.Role;
+import com.salman.dentalsystem.model.enums.XrayAgent;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -33,4 +34,5 @@ public class UserCreateRequest {
 
     @NotNull(message = "Role cannot be null")
     private Role role;
+    private XrayAgent xrayAgent;
 }

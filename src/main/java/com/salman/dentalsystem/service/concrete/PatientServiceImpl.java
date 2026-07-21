@@ -24,6 +24,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -47,7 +48,7 @@ public class PatientServiceImpl implements PatientService {
 
     @Override
     public DataResult<PatientDetailedResponse> getById(UUID id) {
-        Patient foundPatient = patientRepository.findByIdAndStatus(id, EntityStatus.ACTIVE)
+        Patient foundPatient = patientRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Patient not found with ID: " + id, ErrorCode.PATIENT_NOT_FOUND));
         PatientDetailedResponse patientDetailedResponse = patientMapper.toDetailedResponse(foundPatient);
         return new SuccessDataResult<>(patientDetailedResponse, "Patient found successfully");
@@ -79,6 +80,7 @@ public class PatientServiceImpl implements PatientService {
     }
 
     @Override
+    @Transactional
     public DataResult<PatientDetailedResponse> deleteById(UUID id) {
         Patient patient = patientRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Patient not found with ID: " + id, ErrorCode.PATIENT_NOT_FOUND));

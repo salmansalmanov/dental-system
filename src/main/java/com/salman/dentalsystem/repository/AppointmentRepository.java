@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -40,7 +41,19 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID> 
 
     List<Appointment> findAllByPatientIdAndStatus(UUID patientId, EntityStatus status);
 
-    Page<Appointment> findAllByPatientIdAndStatus(UUID patientId, EntityStatus status, Pageable pageable);
+//    Page<Appointment> findAllByPatientIdAndStatus(UUID patientId, EntityStatus status, Pageable pageable);
+
+    @Query("""
+    SELECT a
+    FROM Appointment a
+    WHERE a.patient.id = :patientId
+      AND (:status IS NULL OR a.status = :status)
+    """)
+    Page<Appointment> findAllByPatientIdAndStatus(
+            @Param("patientId") UUID patientId,
+            @Param("status") EntityStatus status,
+            Pageable pageable
+    );
 
     boolean existsByDentistIdAndDateAndIdNotAndStartTimeLessThanAndEndTimeGreaterThan(
             UUID dentistId,
@@ -80,4 +93,9 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID> 
             LocalTime currentTime,
             EntityStatus status
     );
+
+    @Query("SELECT a FROM Appointment a " +
+            "WHERE a.date = CURRENT_DATE AND a.status = com.salman.dentalsystem.model.enums.EntityStatus.ACTIVE " +
+            "ORDER BY a.startTime")
+    Page<Appointment> findAllForToday(Pageable pageable);
 }

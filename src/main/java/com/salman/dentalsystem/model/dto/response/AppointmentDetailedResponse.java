@@ -22,6 +22,7 @@ public class AppointmentDetailedResponse {
     private LocalTime startTime;
     private LocalTime endTime;
     private UserResponse dentist;
+    private PatientResponse patient;
     private String treatment;
     private EntityStatus status;
     private BigDecimal price;

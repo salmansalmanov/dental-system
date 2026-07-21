@@ -1,21 +1,21 @@
 package com.salman.dentalsystem.model.dto.response;
 
-import com.salman.dentalsystem.model.enums.EntityStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalTime;
 import java.util.UUID;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class AppointmentResponse {
+public class AppointmentTodayResponse {
     private UUID id;
-    private String date;
-    private String startTime;
-    private String endTime;
-    private EntityStatus status;
+    private String patientFullName;
+    private String dentistFullName;
+    private LocalTime startTime;
+    private LocalTime endTime;
 }

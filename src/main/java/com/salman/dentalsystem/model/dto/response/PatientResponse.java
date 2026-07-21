@@ -1,5 +1,6 @@
 package com.salman.dentalsystem.model.dto.response;
 
+import com.salman.dentalsystem.model.enums.EntityStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,4 +17,5 @@ public class PatientResponse {
     private String name;
     private String surname;
     private String patronymic;
+    private EntityStatus status;
 }

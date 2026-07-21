@@ -10,13 +10,13 @@ import com.salman.dentalsystem.model.dto.response.PatientDetailedResponse;
 import com.salman.dentalsystem.model.dto.response.PatientResponse;
 import com.salman.dentalsystem.model.entity.Appointment;
 import com.salman.dentalsystem.model.entity.Patient;
+import com.salman.dentalsystem.model.enums.AppointmentStatus;
 import com.salman.dentalsystem.model.enums.EntityStatus;
 import com.salman.dentalsystem.model.enums.ErrorCode;
 import com.salman.dentalsystem.repository.AppointmentRepository;
 import com.salman.dentalsystem.repository.PatientRepository;
-import com.salman.dentalsystem.result.DataResult;
-import com.salman.dentalsystem.result.PageData;
-import com.salman.dentalsystem.result.SuccessDataResult;
+import com.salman.dentalsystem.result.*;
+import com.salman.dentalsystem.service.abstraction.AppointmentService;
 import com.salman.dentalsystem.service.abstraction.PatientService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -36,6 +36,7 @@ public class PatientServiceImpl implements PatientService {
     private final PatientMapper patientMapper;
     private final PatientRepository patientRepository;
     private final AppointmentRepository appointmentRepository;
+    private final AppointmentService appointmentService;
 
     @Override
     public DataResult<PatientDetailedResponse> create(PatientCreateRequest request) {
@@ -81,7 +82,7 @@ public class PatientServiceImpl implements PatientService {
 
     @Override
     @Transactional
-    public DataResult<PatientDetailedResponse> deleteById(UUID id) {
+    public DataResult<PatientDetailedResponse> deactivateById(UUID id) {
         Patient patient = patientRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Patient not found with ID: " + id, ErrorCode.PATIENT_NOT_FOUND));
         patient.setStatus(EntityStatus.DELETED);
@@ -89,6 +90,7 @@ public class PatientServiceImpl implements PatientService {
         List<Appointment> appointments = appointmentRepository.findAllByPatientId(patient.getId());
         appointments.forEach(appointment -> {
             appointment.setStatus(EntityStatus.DELETED);
+            appointment.setAppointmentStatus(AppointmentStatus.DELETED);
             appointment.setDeletedAt(LocalDateTime.now());
         });
         appointmentRepository.saveAll(appointments);
@@ -103,9 +105,10 @@ public class PatientServiceImpl implements PatientService {
         if (patient.getStatus() == EntityStatus.ACTIVE) {
             throw new ConflictException("Patient is already active", ErrorCode.PATIENT_ALREADY_ACTIVE);
         }
-        List<Appointment> appointments = appointmentRepository.findAllByPatientIdAndStatus(patient.getId(), EntityStatus.DELETED);
+        List<Appointment> appointments = appointmentRepository.findAllByPatientIdAndStatusIn(patient.getId(), List.of(EntityStatus.DELETED, EntityStatus.TRASH));
         appointments.forEach(appointment -> {
             appointment.setStatus(EntityStatus.ACTIVE);
+            appointment.setAppointmentStatus(appointmentService.initializeAppointmentStatus(appointment.getDate(), appointment.getStartTime(), appointment.getEndTime()));
             appointment.setDeletedAt(null);
         });
         patient.setStatus(EntityStatus.ACTIVE);
@@ -116,21 +119,20 @@ public class PatientServiceImpl implements PatientService {
     }
 
     @Override
-    public Patient getActivePatientById(UUID id) {
-        return patientRepository.findByIdAndStatus(id, EntityStatus.ACTIVE)
-                .orElseThrow(() -> new NotFoundException("Patient not found with ID: " + id, ErrorCode.PATIENT_NOT_FOUND));
-    }
-
-    @Override
-    public Patient getPatientById(UUID id) {
-        return patientRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Patient not found with ID: " + id, ErrorCode.PATIENT_NOT_FOUND));
-    }
-
-    @Override
     public DataResult<PatientCountResponse> getAllPatientsCount() {
         Long count = patientRepository.count();
         PatientCountResponse response = new PatientCountResponse(count);
         return new SuccessDataResult<>(response, "Patient count found successfully");
+    }
+
+    @Override
+    @Transactional
+    public Result deleteById(UUID id) {
+        Patient patient = patientRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Patient not found with ID: " + id, ErrorCode.PATIENT_NOT_FOUND));
+        List<Appointment> appointments = appointmentRepository.findAllByPatientId(patient.getId());
+        appointmentRepository.deleteAll(appointments);
+        patientRepository.deleteById(id);
+        return new SuccessResult("Patient deleted successfully");
     }
 }

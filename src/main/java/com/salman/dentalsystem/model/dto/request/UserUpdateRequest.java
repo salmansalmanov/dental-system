@@ -1,5 +1,6 @@
 package com.salman.dentalsystem.model.dto.request;
 
+import com.salman.dentalsystem.model.enums.XrayAgent;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -30,4 +31,5 @@ public class UserUpdateRequest {
     @Pattern(regexp = "^\\+994\\d{9}$",
             message = "Phone number must start with +994 and be 13 characters long")
     private String phoneNumber;
+    private XrayAgent xrayAgent;
 }

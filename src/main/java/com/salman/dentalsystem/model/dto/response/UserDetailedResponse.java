@@ -2,6 +2,7 @@ package com.salman.dentalsystem.model.dto.response;
 
 import com.salman.dentalsystem.model.enums.EntityStatus;
 import com.salman.dentalsystem.model.enums.Role;
+import com.salman.dentalsystem.model.enums.XrayAgent;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,4 +23,5 @@ public class UserDetailedResponse {
     private String phoneNumber;
     private EntityStatus status;
     private Role role;
+    private XrayAgent xrayAgent;
 }

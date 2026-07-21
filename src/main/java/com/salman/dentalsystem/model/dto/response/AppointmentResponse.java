@@ -1,5 +1,6 @@
 package com.salman.dentalsystem.model.dto.response;
 
+import com.salman.dentalsystem.model.enums.AppointmentStatus;
 import com.salman.dentalsystem.model.enums.EntityStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -17,5 +18,5 @@ public class AppointmentResponse {
     private String date;
     private String startTime;
     private String endTime;
-    private EntityStatus status;
+    private AppointmentStatus appointmentStatus;
 }

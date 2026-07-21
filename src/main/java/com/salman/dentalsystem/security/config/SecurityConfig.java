@@ -73,6 +73,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/v1/xray/upload").permitAll()
                         .requestMatchers(HttpMethod.GET, "/v1/xray/*").hasAnyRole("DENTIST", "ADMIN", "RECEPTIONIST")
                         .requestMatchers(HttpMethod.GET, "/v1/appointments/today").hasAnyRole("DENTIST", "ADMIN", "RECEPTIONIST")
+                        .requestMatchers(HttpMethod.GET, "/v1/appointments/trash").hasAnyRole("DENTIST", "ADMIN", "RECEPTIONIST")
                         .anyRequest().authenticated())
                 .sessionManagement(sessionManagement -> sessionManagement
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))

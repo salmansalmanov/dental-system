@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1.2.3-add-not-null-constraint-to-appointment-status
+      author: salmansalmanov
+      changes:
+        - addNotNullConstraint:
+            tableName: appointments
+            columnName: appointment_status

@@ -8,6 +8,7 @@ import com.salman.dentalsystem.model.dto.response.PatientResponse;
 import com.salman.dentalsystem.model.enums.EntityStatus;
 import com.salman.dentalsystem.result.DataResult;
 import com.salman.dentalsystem.result.PageData;
+import com.salman.dentalsystem.result.Result;
 import com.salman.dentalsystem.service.abstraction.PatientService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -70,7 +71,7 @@ public class PatientController {
     public ResponseEntity<DataResult<PatientDetailedResponse>> deletePatient(@PathVariable UUID id) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(patientService.deleteById(id));
+                .body(patientService.deactivateById(id));
     }
 
     @PatchMapping("/{id}/activate")
@@ -78,5 +79,12 @@ public class PatientController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(patientService.activateById(id));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Result> deleteById(@PathVariable UUID id) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(patientService.deleteById(id));
     }
 }

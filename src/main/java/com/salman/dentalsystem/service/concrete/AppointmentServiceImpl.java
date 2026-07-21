@@ -12,14 +12,14 @@ import com.salman.dentalsystem.model.entity.Appointment;
 import com.salman.dentalsystem.model.entity.Patient;
 import com.salman.dentalsystem.model.entity.User;
 import com.salman.dentalsystem.model.entity.XrayImage;
+import com.salman.dentalsystem.model.enums.AppointmentStatus;
 import com.salman.dentalsystem.model.enums.EntityStatus;
 import com.salman.dentalsystem.model.enums.ErrorCode;
 import com.salman.dentalsystem.model.enums.Role;
 import com.salman.dentalsystem.repository.AppointmentRepository;
+import com.salman.dentalsystem.repository.PatientRepository;
 import com.salman.dentalsystem.repository.XrayImageRepository;
-import com.salman.dentalsystem.result.DataResult;
-import com.salman.dentalsystem.result.PageData;
-import com.salman.dentalsystem.result.SuccessDataResult;
+import com.salman.dentalsystem.result.*;
 import com.salman.dentalsystem.service.abstraction.AppointmentService;
 import com.salman.dentalsystem.service.abstraction.PatientService;
 import com.salman.dentalsystem.service.abstraction.UserService;
@@ -32,6 +32,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -39,11 +40,11 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AppointmentServiceImpl implements AppointmentService {
     private final UserService userService;
-    private final PatientService patientService;
     private final AppointmentMapper appointmentMapper;
     private final AppointmentRepository appointmentRepository;
     private final XrayImageRepository xrayImageRepository;
     private final XrayImageMapper xrayImageMapper;
+    private final PatientRepository patientRepository;
 
     @Override
     public DataResult<AppointmentDetailedResponse> create(UUID patientId, AppointmentCreateRequest request) {
@@ -57,11 +58,13 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         validateDentistAvailabilityForCreate(currentUser.getId(), request);
         validatePatientAvailabilityForCreate(patientId, request);
-        Patient patient = patientService.getActivePatientById(patientId);
+        Patient patient = patientRepository.findByIdAndStatus(patientId, EntityStatus.ACTIVE)
+                .orElseThrow(() -> new NotFoundException("Patient not found with ID: " + patientId, ErrorCode.PATIENT_NOT_FOUND));
         Appointment appointment = appointmentMapper.createRequestToEntity(request);
         appointment.setPatient(patient);
         appointment.setDentist(currentUser);
         appointment.setStatus(EntityStatus.ACTIVE);
+        appointment.setAppointmentStatus(initializeAppointmentStatus(request.getDate(), request.getStartTime(), request.getEndTime()));
         Appointment savedAppointment = appointmentRepository.save(appointment);
         AppointmentDetailedResponse response = appointmentMapper.toDetailedResponse(savedAppointment);
         return new SuccessDataResult<>(response, "Appointment created successfully");
@@ -71,6 +74,9 @@ public class AppointmentServiceImpl implements AppointmentService {
     public DataResult<AppointmentDetailedResponse> getById(UUID id) {
         Appointment appointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Appointment not found with ID: " + id, ErrorCode.APPOINTMENT_NOT_FOUND));
+        if (appointment.getStatus() == EntityStatus.ACTIVE) {
+            appointment.setAppointmentStatus(initializeAppointmentStatus(appointment.getDate(), appointment.getStartTime(), appointment.getEndTime()));
+        }
         List<XrayImage> images = xrayImageRepository.findAllByAppointmentId(id);
         List<XrayImageResponse> xrayImages = images.stream()
                 .map(xrayImageMapper::toResponse)
@@ -82,7 +88,8 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     public DataResult<PageData<AppointmentResponse>> getAllByPatientId(UUID patientId, EntityStatus status, int page, int size) {
-        Patient patient = patientService.getPatientById(patientId);
+        Patient patient = patientRepository.findById(patientId)
+                .orElseThrow(() -> new NotFoundException("Patient not found with ID: " + patientId, ErrorCode.PATIENT_NOT_FOUND));
         Pageable pageable = PageRequest.of(
                 page,
                 size,
@@ -96,7 +103,20 @@ public class AppointmentServiceImpl implements AppointmentService {
                 appointmentPage.isLast(),
                 appointmentPage.getNumber(),
                 appointmentPage.getSize(),
-                appointmentPage.getContent().stream().map(appointmentMapper::toResponse).toList()
+                appointmentPage.getContent().stream()
+                        .peek(appointment -> {
+                            if (appointment.getStatus() == EntityStatus.ACTIVE) {
+                                appointment.setAppointmentStatus(
+                                        initializeAppointmentStatus(
+                                                appointment.getDate(),
+                                                appointment.getStartTime(),
+                                                appointment.getEndTime()
+                                        )
+                                );
+                            }
+                        })
+                        .map(appointmentMapper::toResponse)
+                        .toList()
         );
         return new SuccessDataResult<>(pageData, "Appointments found successfully");
     }
@@ -128,6 +148,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         validatePatientAvailabilityForUpdate(id, existingAppointment.getPatient().getId(), request);
 
         Appointment updatedAppointment = appointmentMapper.updateRequestToEntity(request, existingAppointment);
+        updatedAppointment.setAppointmentStatus(initializeAppointmentStatus(request.getDate(), request.getStartTime(), request.getEndTime()));
         Appointment savedAppointment = appointmentRepository.save(updatedAppointment);
         AppointmentDetailedResponse response = appointmentMapper.toDetailedResponse(savedAppointment);
         return new SuccessDataResult<>(response, "Appointment updated successfully");
@@ -144,6 +165,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         }
         appointment.setStatus(EntityStatus.DELETED);
         appointment.setDeletedAt(LocalDateTime.now());
+        appointment.setAppointmentStatus(AppointmentStatus.DELETED);
         Appointment savedAppointment = appointmentRepository.save(appointment);
         AppointmentDetailedResponse response = appointmentMapper.toDetailedResponse(savedAppointment);
         return new SuccessDataResult<>(response, "Appointment canceled successfully");
@@ -166,6 +188,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         }
         appointment.setStatus(EntityStatus.ACTIVE);
         appointment.setDeletedAt(null);
+        appointment.setAppointmentStatus(initializeAppointmentStatus(appointment.getDate(), appointment.getStartTime(), appointment.getEndTime()));
         Appointment savedAppointment = appointmentRepository.save(appointment);
         AppointmentDetailedResponse response = appointmentMapper.toDetailedResponse(savedAppointment);
         return new SuccessDataResult<>(response, "Appointment activated successfully");
@@ -191,12 +214,20 @@ public class AppointmentServiceImpl implements AppointmentService {
                 appointmentPage.getNumber(),
                 appointmentPage.getSize(),
                 appointmentPage.getContent().stream()
+                        .peek(appointment -> appointment.setAppointmentStatus(
+                                initializeAppointmentStatus(
+                                        appointment.getDate(),
+                                        appointment.getStartTime(),
+                                        appointment.getEndTime()
+                                )
+                        ))
                         .map(appointment -> new AppointmentTodayResponse(
                                 appointment.getId(),
                                 appointment.getPatient().getName() + " " + appointment.getPatient().getSurname(),
                                 appointment.getDentist().getName() + " " + appointment.getDentist().getSurname(),
                                 appointment.getStartTime(),
-                                appointment.getEndTime()
+                                appointment.getEndTime(),
+                                appointment.getAppointmentStatus()
                         ))
                         .toList()
         );
@@ -263,5 +294,51 @@ public class AppointmentServiceImpl implements AppointmentService {
             response.setRemainingAmount(null);
         }
         return response;
+    }
+
+    @Override
+    public AppointmentStatus initializeAppointmentStatus(LocalDate date, LocalTime startTime, LocalTime endTime) {
+        LocalDateTime startDateTime = LocalDateTime.of(date, startTime);
+        LocalDateTime endDateTime = LocalDateTime.of(date, endTime);
+        LocalDateTime now = LocalDateTime.now();
+
+        if (endDateTime.isBefore(now)) {
+            return AppointmentStatus.COMPLETED;
+        } else if (startDateTime.isBefore(now) && endDateTime.isAfter(now)) {
+            return AppointmentStatus.IN_PROGRESS;
+        } else {
+            return AppointmentStatus.SCHEDULED;
+        }
+    }
+
+    @Override
+    public DataResult<PageData<AppointmentResponse>> getAllTrashed(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<Appointment> appointmentPage = appointmentRepository.findAllByStatus(EntityStatus.TRASH, pageable);
+        PageData<AppointmentResponse> pageData = new PageData<>(
+                appointmentPage.getTotalPages(),
+                appointmentPage.getTotalElements(),
+                appointmentPage.isFirst(),
+                appointmentPage.isLast(),
+                appointmentPage.getNumber(),
+                appointmentPage.getSize(),
+                appointmentPage.getContent().stream().map(appointmentMapper::toResponse).toList()
+        );
+        return new SuccessDataResult<>(pageData, "Trashed");
+    }
+
+    @Override
+    public Result deleteById(UUID id) {
+        Appointment appointment = appointmentRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Appointment not found with ID: " + id, ErrorCode.APPOINTMENT_NOT_FOUND));
+        appointmentRepository.deleteById(id);
+        return new SuccessResult("Appointment deleted successfully");
+    }
+
+    @Override
+    public Result deleteAllTrashed() {
+        List<Appointment> appointments = appointmentRepository.findAllByStatus(EntityStatus.TRASH);
+        appointmentRepository.deleteAll(appointments);
+        return new SuccessResult("All appointments deleted successfully");
     }
 }

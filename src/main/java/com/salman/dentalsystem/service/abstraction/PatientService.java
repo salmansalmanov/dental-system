@@ -5,10 +5,10 @@ import com.salman.dentalsystem.model.dto.request.PatientUpdateRequest;
 import com.salman.dentalsystem.model.dto.response.PatientCountResponse;
 import com.salman.dentalsystem.model.dto.response.PatientDetailedResponse;
 import com.salman.dentalsystem.model.dto.response.PatientResponse;
-import com.salman.dentalsystem.model.entity.Patient;
 import com.salman.dentalsystem.model.enums.EntityStatus;
 import com.salman.dentalsystem.result.DataResult;
 import com.salman.dentalsystem.result.PageData;
+import com.salman.dentalsystem.result.Result;
 
 import java.util.UUID;
 
@@ -21,13 +21,11 @@ public interface PatientService {
 
     DataResult<PatientDetailedResponse> updateById(UUID id, PatientUpdateRequest request);
 
-    DataResult<PatientDetailedResponse> deleteById(UUID id);
+    DataResult<PatientDetailedResponse> deactivateById(UUID id);
 
     DataResult<PatientDetailedResponse> activateById(UUID id);
 
-    Patient getActivePatientById(UUID id);
-
-    Patient getPatientById(UUID id);
-
     DataResult<PatientCountResponse> getAllPatientsCount();
+
+    Result deleteById(UUID id);
 }

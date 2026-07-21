@@ -1,5 +1,6 @@
 package com.salman.dentalsystem.model.entity;
 
+import com.salman.dentalsystem.model.enums.AppointmentStatus;
 import com.salman.dentalsystem.model.enums.EntityStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -30,6 +31,9 @@ public class Appointment extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private EntityStatus status;
+
+    @Enumerated(EnumType.STRING)
+    private AppointmentStatus appointmentStatus;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Patient patient;

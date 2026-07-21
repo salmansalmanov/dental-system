@@ -1,8 +1,11 @@
 databaseChangeLog:
   - changeSet:
-      id: 1.2.1-drop-appointment_status-column
+      id: 1.2.1-add-appointment-status-to-appointments
       author: salmansalmanov
       changes:
-        - dropColumn:
+        - addColumn:
             tableName: appointments
-            columnName: appointment_status
+            columns:
+              - column:
+                  name: appointment_status
+                  type: VARCHAR

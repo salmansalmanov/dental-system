@@ -23,6 +23,7 @@ import com.salman.dentalsystem.result.PageData;
 import com.salman.dentalsystem.result.SuccessDataResult;
 import com.salman.dentalsystem.service.abstraction.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -41,11 +42,13 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private static final SecureRandom RANDOM = new SecureRandom();
-
     private final UserMapper userMapper;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final RefreshTokenRepository refreshTokenRepository;
+
+    @Value("${spring.admin.username}")
+    private String adminUsername;
 
     @Override
     public DataResult<UserCreateResponse> create(UserCreateRequest request) {
@@ -95,8 +98,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public DataResult<UserDetailedResponse> updateById(UUID id, UserUpdateRequest request) {
-        User existingUser = userRepository.findByIdAndStatusNot(id, EntityStatus.DELETED)
+        User existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User not found with ID: " + id, ErrorCode.USER_NOT_FOUND));
+        if (adminUsername.equals(existingUser.getUsername())) {
+            throw new InvalidInputException("This system user cannot be modified", ErrorCode.UNAUTHORIZED_ACTION);
+        }
         User updatedUser = userMapper.updateRequestToEntity(request, existingUser);
         User savedUser = userRepository.save(updatedUser);
         return new SuccessDataResult<>(userMapper.toDetailedResponse(savedUser), "User updated successfully");
@@ -107,6 +113,9 @@ public class UserServiceImpl implements UserService {
     public DataResult<UserDetailedResponse> deleteById(UUID id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User not found with ID: " + id, ErrorCode.USER_NOT_FOUND));
+        if (adminUsername.equals(user.getUsername())) {
+            throw new InvalidInputException("This system user cannot be modified", ErrorCode.UNAUTHORIZED_ACTION);
+        }
         User currentUser = getCurrentUser();
         if (user.getId().equals(currentUser.getId())) {
             throw new InvalidInputException("You cannot delete yourself", ErrorCode.UNAUTHORIZED_ACTION);
@@ -129,6 +138,9 @@ public class UserServiceImpl implements UserService {
     public DataResult<UserDetailedResponse> activateById(UUID id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User not found with ID: " + id, ErrorCode.USER_NOT_FOUND));
+        if (adminUsername.equals(user.getUsername())) {
+            throw new InvalidInputException("This system user cannot be modified", ErrorCode.UNAUTHORIZED_ACTION);
+        }
         if (user.getStatus() == EntityStatus.ACTIVE) {
             throw new ConflictException("User is already active", ErrorCode.USER_ALREADY_ACTIVE);
         }
@@ -188,6 +200,9 @@ public class UserServiceImpl implements UserService {
     public DataResult<PasswordResetResponse> resetPassword(UUID id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User not found with ID: " + id, ErrorCode.USER_NOT_FOUND));
+        if (adminUsername.equals(user.getUsername())) {
+            throw new InvalidInputException("This system user cannot be modified", ErrorCode.UNAUTHORIZED_ACTION);
+        }
         String newPassword = generatePassword();
         user.setPassword(passwordEncoder.encode(newPassword));
         RefreshToken refreshToken = refreshTokenRepository.findByUser(user)

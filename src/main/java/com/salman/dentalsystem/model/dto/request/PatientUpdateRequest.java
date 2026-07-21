@@ -1,5 +1,6 @@
 package com.salman.dentalsystem.model.dto.request;
 
+import com.salman.dentalsystem.model.enums.XrayAgent;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;

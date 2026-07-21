@@ -7,9 +7,9 @@ import com.salman.dentalsystem.model.dto.response.AppointmentResponse;
 import com.salman.dentalsystem.model.dto.response.AppointmentTodayCountResponse;
 import com.salman.dentalsystem.model.dto.response.AppointmentTodayResponse;
 import com.salman.dentalsystem.model.enums.EntityStatus;
-import com.salman.dentalsystem.model.enums.Role;
 import com.salman.dentalsystem.result.DataResult;
 import com.salman.dentalsystem.result.PageData;
+import com.salman.dentalsystem.result.Result;
 import com.salman.dentalsystem.service.abstraction.AppointmentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -93,5 +93,29 @@ public class AppointmentController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(appointmentService.activateById(id));
+    }
+
+    @GetMapping("/appointments/trash")
+    public ResponseEntity<DataResult<PageData<AppointmentResponse>>> getAllTrashedAppointments(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(appointmentService.getAllTrashed(page, size));
+    }
+
+    @DeleteMapping("/appointments/{id}")
+    public ResponseEntity<Result> deleteAppointmentById(@PathVariable UUID id) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(appointmentService.deleteById(id));
+    }
+
+    @DeleteMapping("appointments/empty-trash")
+    public ResponseEntity<Result> deleteAllTrashedAppointments() {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(appointmentService.deleteAllTrashed());
     }
 }

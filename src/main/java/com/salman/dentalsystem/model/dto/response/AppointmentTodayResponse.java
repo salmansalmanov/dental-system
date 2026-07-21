@@ -1,5 +1,6 @@
 package com.salman.dentalsystem.model.dto.response;
 
+import com.salman.dentalsystem.model.enums.AppointmentStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,4 +19,5 @@ public class AppointmentTodayResponse {
     private String dentistFullName;
     private LocalTime startTime;
     private LocalTime endTime;
+    private AppointmentStatus status;
 }

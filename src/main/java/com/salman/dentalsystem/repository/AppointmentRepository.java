@@ -39,7 +39,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID> 
 
     List<Appointment> findAllByPatientId(UUID patientId);
 
-    List<Appointment> findAllByPatientIdAndStatus(UUID patientId, EntityStatus status);
+    List<Appointment> findAllByPatientIdAndStatusIn(UUID patientId, List<EntityStatus> statuses);
 
 //    Page<Appointment> findAllByPatientIdAndStatus(UUID patientId, EntityStatus status, Pageable pageable);
 
@@ -98,4 +98,8 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID> 
             "WHERE a.date = CURRENT_DATE AND a.status = com.salman.dentalsystem.model.enums.EntityStatus.ACTIVE " +
             "ORDER BY a.startTime")
     Page<Appointment> findAllForToday(Pageable pageable);
+
+    Page<Appointment> findAllByStatus(EntityStatus status, Pageable pageable);
+
+    List<Appointment> findAllByStatus(EntityStatus status);
 }

@@ -1,5 +1,6 @@
 package com.salman.dentalsystem.model.dto.response;
 
+import com.salman.dentalsystem.model.enums.AppointmentStatus;
 import com.salman.dentalsystem.model.enums.EntityStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,7 +25,7 @@ public class AppointmentDetailedResponse {
     private UserResponse dentist;
     private PatientResponse patient;
     private String treatment;
-    private EntityStatus status;
+    private AppointmentStatus appointmentStatus;
     private BigDecimal price;
     private BigDecimal paidAmount;
     private BigDecimal remainingAmount;

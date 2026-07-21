@@ -2,6 +2,7 @@ package com.salman.dentalsystem.scheduler;
 
 import com.salman.dentalsystem.model.entity.Appointment;
 import com.salman.dentalsystem.model.entity.Patient;
+import com.salman.dentalsystem.model.enums.AppointmentStatus;
 import com.salman.dentalsystem.model.enums.EntityStatus;
 import com.salman.dentalsystem.repository.AppointmentRepository;
 import com.salman.dentalsystem.repository.PatientRepository;
@@ -31,12 +32,18 @@ public class SoftDeleteEntityPurgeScheduler {
             return;
         }
 
+        patients.forEach(patient -> patient.setStatus(EntityStatus.TRASH));
+        patientRepository.saveAll(patients);
+
         List<UUID> patientIds = patients.stream().map(Patient::getId).toList();
         List<Appointment> appointments = appointmentRepository.findAllByPatientIdInAndStatus(patientIds, EntityStatus.DELETED);
         if (!appointments.isEmpty()) {
-            appointmentRepository.deleteAll(appointments);
+            appointments.forEach(appointment -> {
+                appointment.setStatus(EntityStatus.TRASH);
+                appointment.setAppointmentStatus(AppointmentStatus.TRASH);
+            });
+            appointmentRepository.saveAll(appointments);
         }
-        patientRepository.deleteAll(patients);
     }
 
     @Scheduled(cron = "0 0 0 * * *")
@@ -47,6 +54,11 @@ public class SoftDeleteEntityPurgeScheduler {
         if (appointments.isEmpty()) {
             return;
         }
-        appointmentRepository.deleteAll(appointments);
+
+        appointments.forEach(appointment -> {
+            appointment.setStatus(EntityStatus.TRASH);
+            appointment.setAppointmentStatus(AppointmentStatus.TRASH);
+        });
+        appointmentRepository.saveAll(appointments);
     }
 }

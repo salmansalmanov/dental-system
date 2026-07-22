@@ -78,6 +78,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/v1/appointments/empty-trash").hasAnyRole("ADMIN", "DENTIST")
                         .requestMatchers(HttpMethod.DELETE, "/v1/patients/*").hasAnyRole("ADMIN", "DENTIST")
                         .requestMatchers(HttpMethod.DELETE, "/v1/patients/empty-trash").hasAnyRole("ADMIN", "DENTIST")
+                        .requestMatchers(HttpMethod.GET, "/v1/reports/revenue").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .sessionManagement(sessionManagement -> sessionManagement
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))

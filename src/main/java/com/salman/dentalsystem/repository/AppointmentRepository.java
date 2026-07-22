@@ -11,6 +11,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -102,4 +103,11 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID> 
     Page<Appointment> findAllByStatus(EntityStatus status, Pageable pageable);
 
     List<Appointment> findAllByStatus(EntityStatus status);
+
+    @Query("SELECT DISTINCT a FROM Appointment a " +
+            "LEFT JOIN FETCH a.dentist " +
+            "LEFT JOIN FETCH a.patient " +
+            "WHERE a.date >= :startDate AND a.date <= :endDate")
+    List<Appointment> findAllAppointmentsBetween(@Param("startDate") LocalDate startDate,
+                                                 @Param("endDate") LocalDate endDate);
 }

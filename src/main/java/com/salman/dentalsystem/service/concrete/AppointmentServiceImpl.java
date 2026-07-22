@@ -18,6 +18,7 @@ import com.salman.dentalsystem.model.enums.ErrorCode;
 import com.salman.dentalsystem.model.enums.Role;
 import com.salman.dentalsystem.repository.AppointmentRepository;
 import com.salman.dentalsystem.repository.PatientRepository;
+import com.salman.dentalsystem.repository.UserRepository;
 import com.salman.dentalsystem.repository.XrayImageRepository;
 import com.salman.dentalsystem.result.*;
 import com.salman.dentalsystem.service.abstraction.AppointmentService;
@@ -45,6 +46,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     private final XrayImageRepository xrayImageRepository;
     private final XrayImageMapper xrayImageMapper;
     private final PatientRepository patientRepository;
+    private final UserRepository userRepository;
 
     @Override
     public DataResult<AppointmentDetailedResponse> create(UUID patientId, AppointmentCreateRequest request) {
@@ -52,17 +54,30 @@ public class AppointmentServiceImpl implements AppointmentService {
             throw new InvalidInputException("End time must be after start time", ErrorCode.INVALID_APPOINTMENT_TIME);
         }
         User currentUser = userService.getCurrentUser();
-        if (currentUser.getStatus() != EntityStatus.ACTIVE || (currentUser.getRole() != Role.DENTIST && currentUser.getRole() != Role.ADMIN)) {
+        User dentist;
+        boolean isReceptionist = currentUser.getRole() != null && currentUser.getRole().equals(Role.RECEPTIONIST);
+        if (currentUser.getStatus() != EntityStatus.ACTIVE) {
             throw new InvalidInputException("Only active dentists or admins can create appointments", ErrorCode.UNAUTHORIZED_ACTION);
         }
 
-        validateDentistAvailabilityForCreate(currentUser.getId(), request);
-        validatePatientAvailabilityForCreate(patientId, request);
         Patient patient = patientRepository.findByIdAndStatus(patientId, EntityStatus.ACTIVE)
                 .orElseThrow(() -> new NotFoundException("Patient not found with ID: " + patientId, ErrorCode.PATIENT_NOT_FOUND));
         Appointment appointment = appointmentMapper.createRequestToEntity(request);
         appointment.setPatient(patient);
-        appointment.setDentist(currentUser);
+        if (isReceptionist) {
+            if (request.getDentistId() == null) {
+                throw new InvalidInputException("Dentist ID is null", ErrorCode.INPUT_IS_MISSING);
+            }
+            dentist = userRepository.findById(request.getDentistId())
+                    .orElseThrow(() -> new NotFoundException("Dentist not found with ID: " + request.getDentistId(), ErrorCode.DENTIST_NOT_FOUND));
+            appointment.setDentist(dentist);
+            appointment.setTreatment(null);
+        } else {
+            dentist = currentUser;
+        }
+        validateDentistAvailabilityForCreate(dentist.getId(), request);
+        validatePatientAvailabilityForCreate(patientId, request);
+        appointment.setDentist(dentist);
         appointment.setStatus(EntityStatus.ACTIVE);
         appointment.setAppointmentStatus(initializeAppointmentStatus(request.getDate(), request.getStartTime(), request.getEndTime()));
         Appointment savedAppointment = appointmentRepository.save(appointment);
@@ -133,20 +148,11 @@ public class AppointmentServiceImpl implements AppointmentService {
                 .orElseThrow(() -> new NotFoundException("Appointment not found with ID: " + id, ErrorCode.APPOINTMENT_NOT_FOUND));
 
         User currentUser = userService.getCurrentUser();
-
-        boolean isAdmin = currentUser.getRole() != null && currentUser.getRole().name().equals("ADMIN");
-
-        if (!isAdmin && !currentUser.getId().equals(existingAppointment.getDentist().getId())) {
-            throw new InvalidInputException("Only the appointment owner can modify the appointment", ErrorCode.UNAUTHORIZED_ACTION);
-        }
-
         if (currentUser.getStatus() != EntityStatus.ACTIVE) {
             throw new InvalidInputException("Only active users can modify appointments", ErrorCode.UNAUTHORIZED_ACTION);
         }
-
         validateDentistAvailabilityForUpdate(id, existingAppointment.getDentist().getId(), request);
         validatePatientAvailabilityForUpdate(id, existingAppointment.getPatient().getId(), request);
-
         Appointment updatedAppointment = appointmentMapper.updateRequestToEntity(request, existingAppointment);
         updatedAppointment.setAppointmentStatus(initializeAppointmentStatus(request.getDate(), request.getStartTime(), request.getEndTime()));
         Appointment savedAppointment = appointmentRepository.save(updatedAppointment);

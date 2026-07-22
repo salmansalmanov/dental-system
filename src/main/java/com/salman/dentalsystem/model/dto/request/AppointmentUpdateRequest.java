@@ -26,8 +26,6 @@ public class AppointmentUpdateRequest {
 
     @NotNull(message = "End time is required")
     private LocalTime endTime;
-
-    @NotBlank(message = "Treatment is required")
     private String treatment;
 
     @NotNull(message = "Price is required")

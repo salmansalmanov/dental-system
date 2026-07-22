@@ -1,6 +1,5 @@
 package com.salman.dentalsystem.model.dto.request;
 
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.AllArgsConstructor;
@@ -27,11 +26,10 @@ public class AppointmentCreateRequest {
 
     @NotNull(message = "End time is required")
     private LocalTime endTime;
-
-    @NotBlank(message = "Treatment is required")
     private String treatment;
 
     @NotNull(message = "Price is required")
     @PositiveOrZero(message = "Price must be zero or positive")
     private BigDecimal price;
+    private UUID dentistId;
 }

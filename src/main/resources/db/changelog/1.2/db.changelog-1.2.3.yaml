@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1.2.3-drop-not-null-constraint
+      author: salmansalmanov
+      changes:
+        - dropNotNullConstraint:
+            tableName: appointments
+            columnName: treatment

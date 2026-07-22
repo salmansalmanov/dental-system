@@ -83,6 +83,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public DataResult<PageData<UserResponse>> getAll(String search, EntityStatus status, Role role, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        if (search != null && search.trim().isEmpty()) {
+            search = null;
+        }
         Page<User> userPage = userRepository.findAllFiltered(search, status, role, pageable);
         PageData<UserResponse> pageData = PageData.<UserResponse>builder()
                 .totalPages(userPage.getTotalPages())

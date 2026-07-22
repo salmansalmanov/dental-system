@@ -17,18 +17,20 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     Optional<User> findByIdAndStatusNot(UUID id, EntityStatus status);
 
     @Query("""
-            SELECT u
-            FROM User u
-            WHERE (:role IS NULL OR u.role = :role)
-              AND (:status IS NULL OR u.status = :status)
-              AND (
-                   :search IS NULL
-                   OR LOWER(u.name) LIKE CONCAT('%', LOWER(CAST(:search AS string)), '%')
-                   OR LOWER(u.surname) LIKE CONCAT('%', LOWER(CAST(:search AS string)), '%')
-                   OR LOWER(u.patronymic) LIKE CONCAT('%', LOWER(CAST(:search AS string)), '%')
-                   OR LOWER(u.phoneNumber) LIKE CONCAT('%', LOWER(CAST(:search AS string)), '%')
-              )
-            """)
+    SELECT u FROM User u
+    WHERE (:role IS NULL OR u.role = :role)
+      AND (:status IS NULL OR u.status = :status)
+      AND (
+           :search IS NULL
+           OR LOWER(u.name) LIKE LOWER(CONCAT('%', CAST(:search AS string), '%'))
+           OR LOWER(u.surname) LIKE LOWER(CONCAT('%', CAST(:search AS string), '%'))
+           OR LOWER(COALESCE(u.patronymic, '')) LIKE LOWER(CONCAT('%', CAST(:search AS string), '%'))
+           OR LOWER(u.phoneNumber) LIKE LOWER(CONCAT('%', CAST(:search AS string), '%'))
+           OR LOWER(CONCAT(u.name, ' ', u.surname)) LIKE LOWER(CONCAT('%', CAST(:search AS string), '%'))
+           OR LOWER(CONCAT(u.surname, ' ', u.name)) LIKE LOWER(CONCAT('%', CAST(:search AS string), '%'))
+           OR LOWER(CONCAT(u.name, ' ', u.surname, ' ', COALESCE(u.patronymic, ''))) LIKE LOWER(CONCAT('%', CAST(:search AS string), '%'))
+      )
+""")
     Page<User> findAllFiltered(
             @Param("search") String search,
             @Param("status") EntityStatus status,

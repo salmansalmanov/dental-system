@@ -17,17 +17,19 @@ public interface PatientRepository extends JpaRepository<Patient, UUID> {
     Optional<Patient> findByIdAndStatus(UUID id, EntityStatus status);
 
     @Query("""
-                SELECT p
-                FROM Patient p
-                WHERE (:status IS NULL OR p.status = :status)
-                  AND (
-                       :search IS NULL
-                       OR LOWER(p.name) LIKE CONCAT('%', LOWER(CAST(:search AS string)), '%')
-                       OR LOWER(p.surname) LIKE CONCAT('%', LOWER(CAST(:search AS string)), '%')
-                       OR LOWER(p.patronymic) LIKE CONCAT('%', LOWER(CAST(:search AS string)), '%')
-                       OR LOWER(p.phoneNumber) LIKE CONCAT('%', LOWER(CAST(:search AS string)), '%')
-                  )
-            """)
+    SELECT p FROM Patient p
+    WHERE (:status IS NULL OR p.status = :status)
+      AND (
+           :search IS NULL 
+           OR LOWER(p.name) LIKE LOWER(CONCAT('%', CAST(:search AS string), '%'))
+           OR LOWER(p.surname) LIKE LOWER(CONCAT('%', CAST(:search AS string), '%'))
+           OR LOWER(COALESCE(p.patronymic, '')) LIKE LOWER(CONCAT('%', CAST(:search AS string), '%'))
+           OR LOWER(p.phoneNumber) LIKE LOWER(CONCAT('%', CAST(:search AS string), '%'))
+           OR LOWER(CONCAT(p.name, ' ', p.surname)) LIKE LOWER(CONCAT('%', CAST(:search AS string), '%'))
+           OR LOWER(CONCAT(p.surname, ' ', p.name)) LIKE LOWER(CONCAT('%', CAST(:search AS string), '%'))
+           OR LOWER(CONCAT(p.name, ' ', p.surname, ' ', COALESCE(p.patronymic, ''))) LIKE LOWER(CONCAT('%', CAST(:search AS string), '%'))
+      )
+""")
     Page<Patient> findAllFiltered(
             @Param("search") String search,
             @Param("status") EntityStatus status,

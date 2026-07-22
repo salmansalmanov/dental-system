@@ -58,6 +58,9 @@ public class PatientServiceImpl implements PatientService {
     @Override
     public DataResult<PageData<PatientResponse>> getAll(String search, EntityStatus status, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        if (search != null && search.trim().isEmpty()) {
+            search = null;
+        }
         Page<Patient> patientPage = patientRepository.findAllFiltered(search, status, pageable);
         PageData<PatientResponse> pageData = PageData.<PatientResponse>builder()
                 .totalPages(patientPage.getTotalPages())

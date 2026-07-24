@@ -17,4 +17,5 @@ public class XrayImageResponse {
     private String storedFileName;
     private long fileSize;
     private String imageUrl;
+    private String thumbnailUrl;
 }

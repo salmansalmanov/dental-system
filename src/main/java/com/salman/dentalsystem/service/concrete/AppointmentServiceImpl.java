@@ -24,6 +24,7 @@ import com.salman.dentalsystem.result.*;
 import com.salman.dentalsystem.service.abstraction.AppointmentService;
 import com.salman.dentalsystem.service.abstraction.PatientService;
 import com.salman.dentalsystem.service.abstraction.UserService;
+import com.salman.dentalsystem.service.abstraction.XrayImageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -47,6 +48,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     private final XrayImageMapper xrayImageMapper;
     private final PatientRepository patientRepository;
     private final UserRepository userRepository;
+    private final XrayImageService xrayImageService;
 
     @Override
     public DataResult<AppointmentDetailedResponse> create(UUID patientId, AppointmentCreateRequest request) {
@@ -337,6 +339,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     public Result deleteById(UUID id) {
         Appointment appointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Appointment not found with ID: " + id, ErrorCode.APPOINTMENT_NOT_FOUND));
+        xrayImageService.deleteS3FilesForAppointments(List.of(appointment));
         appointmentRepository.deleteById(id);
         return new SuccessResult("Appointment deleted successfully");
     }
@@ -344,6 +347,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Override
     public Result deleteAllTrashed() {
         List<Appointment> appointments = appointmentRepository.findAllByStatus(EntityStatus.TRASH);
+        xrayImageService.deleteS3FilesForAppointments(appointments);
         appointmentRepository.deleteAll(appointments);
         return new SuccessResult("All appointments deleted successfully");
     }

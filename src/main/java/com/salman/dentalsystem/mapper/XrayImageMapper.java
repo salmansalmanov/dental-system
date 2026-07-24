@@ -12,9 +12,4 @@ public interface XrayImageMapper {
     XrayImage toEntity(StoredFile storedFile);
 
     XrayImageResponse toResponse(XrayImage xrayImage);
-
-    @AfterMapping
-    default void initializeImageUrl(XrayImage xrayImage, @MappingTarget XrayImageResponse response) {
-        response.setImageUrl("/v1/xray/" + xrayImage.getId());
-    }
 }

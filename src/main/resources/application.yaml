@@ -22,9 +22,6 @@ spring:
       expiration: ${ACCESS_TOKEN_EXPIRATION}
     refresh:
       expiration: ${REFRESH_TOKEN_EXPIRATION}
-  file:
-    storage:
-      path: ${XRAY_STORAGE_PATH}
   xray:
     agent:
       api-key: ${XRAY_AGENT_API_KEY}
@@ -35,3 +32,9 @@ spring:
   admin:
     username: ${ADMIN_USERNAME}
     password: ${ADMIN_PASSWORD}
+  aws:
+    s3:
+      bucket: ${AWS_S3_BUCKET}
+      region: ${AWS_S3_REGION}
+      access-key: ${AWS_S3_ACCESS_KEY}
+      secret-key: ${AWS_S3_SECRET_KEY}

@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1.24-add-thumbnail-file-name-to-xray-images
+      author: salmansalmanov
+      changes:
+        - addColumn:
+            tableName: xray_images
+            columns:
+              - column:
+                  name: thumbnail_file_name
+                  type: VARCHAR
+                  constraints:
+                    nullable: false

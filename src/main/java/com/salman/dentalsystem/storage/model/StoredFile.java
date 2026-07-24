@@ -11,6 +11,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class StoredFile {
     private String storedFileName;
+    private String thumbnailFileName;
     private String originalFileName;
     private String filePath;
     private String contentType;

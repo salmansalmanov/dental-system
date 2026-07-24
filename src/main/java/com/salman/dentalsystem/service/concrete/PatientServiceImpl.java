@@ -18,6 +18,7 @@ import com.salman.dentalsystem.repository.PatientRepository;
 import com.salman.dentalsystem.result.*;
 import com.salman.dentalsystem.service.abstraction.AppointmentService;
 import com.salman.dentalsystem.service.abstraction.PatientService;
+import com.salman.dentalsystem.service.abstraction.XrayImageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -37,6 +38,7 @@ public class PatientServiceImpl implements PatientService {
     private final PatientRepository patientRepository;
     private final AppointmentRepository appointmentRepository;
     private final AppointmentService appointmentService;
+    private final XrayImageService xrayImageService;
 
     @Override
     public DataResult<PatientDetailedResponse> create(PatientCreateRequest request) {
@@ -134,6 +136,7 @@ public class PatientServiceImpl implements PatientService {
         Patient patient = patientRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Patient not found with ID: " + id, ErrorCode.PATIENT_NOT_FOUND));
         List<Appointment> appointments = appointmentRepository.findAllByPatientIdAndStatusIn(patient.getId(), List.of(EntityStatus.TRASH));
+        xrayImageService.deleteS3FilesForAppointments(appointments);
         appointmentRepository.deleteAll(appointments);
         patientRepository.deleteById(id);
         return new SuccessResult("Patient deleted successfully");
@@ -145,6 +148,7 @@ public class PatientServiceImpl implements PatientService {
         List<Patient> patients = patientRepository.findAllByStatus(EntityStatus.TRASH);
         for (Patient patient : patients) {
             List<Appointment> appointments = appointmentRepository.findAllByPatientIdAndStatusIn(patient.getId(), List.of(EntityStatus.TRASH));
+            xrayImageService.deleteS3FilesForAppointments(appointments);
             appointmentRepository.deleteAll(appointments);
             patientRepository.deleteById(patient.getId());
         }

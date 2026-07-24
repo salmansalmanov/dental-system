@@ -3,6 +3,7 @@ package com.salman.dentalsystem.controller;
 import com.salman.dentalsystem.model.dto.response.XrayImageResponse;
 import com.salman.dentalsystem.model.enums.XrayAgent;
 import com.salman.dentalsystem.result.DataResult;
+import com.salman.dentalsystem.result.Result;
 import com.salman.dentalsystem.service.abstraction.XrayImageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -10,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -28,10 +30,30 @@ public class XrayImageController {
                 .body(xrayImageService.uploadXrayImage(agentId, file));
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<byte[]> getImage(@PathVariable UUID id) {
+    @GetMapping("/appointment/{appointmentId}")
+    public ResponseEntity<DataResult<List<XrayImageResponse>>> getByAppointment(
+            @PathVariable UUID appointmentId
+    ) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(xrayImageService.getImageBytes(id));
+                .body(xrayImageService.getXrayImagesByAppointment(appointmentId));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<DataResult<XrayImageResponse>> getById(
+            @PathVariable UUID id
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(xrayImageService.getXrayImageById(id));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Result> delete(
+            @PathVariable UUID id
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(xrayImageService.deleteXrayImageById(id));
     }
 }

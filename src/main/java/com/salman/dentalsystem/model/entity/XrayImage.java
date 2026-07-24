@@ -17,6 +17,7 @@ import lombok.Setter;
 @Table(name = "xray_images")
 public class XrayImage extends BaseEntity {
     private String storedFileName;
+    private String thumbnailFileName;
     private String originalFileName;
     private String contentType;
     private long fileSize;

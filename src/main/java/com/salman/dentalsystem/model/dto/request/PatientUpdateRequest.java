@@ -31,4 +31,11 @@ public class PatientUpdateRequest {
     @Pattern(regexp = "^\\+994\\d{9}$",
             message = "Phone number must start with +994 and be 13 characters long")
     private String phoneNumber;
+
+    @NotBlank(message = "Pin cannot be blank")
+    @Pattern(regexp = "^[a-zA-Z0-9]{7}$", message = "Pin must be 7 characters long")
+    private String pin;
+
+    @NotBlank(message = "Address cannot be blank")
+    private String address;
 }

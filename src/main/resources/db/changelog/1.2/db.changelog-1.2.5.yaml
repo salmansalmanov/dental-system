@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1.2.5-add-pin-and-address-to-patients
+      author: salmansalmanov
+      changes:
+        - addColumn:
+            tableName: patients
+            columns:
+              - column:
+                  name: pin
+                  type: VARCHAR(7)
+                  constraints:
+                    nullable: false
+        - addColumn:
+            tableName: patients
+            columns:
+              - column:
+                  name: address
+                  type: VARCHAR(7)
+                  constraints:
+                    nullable: false

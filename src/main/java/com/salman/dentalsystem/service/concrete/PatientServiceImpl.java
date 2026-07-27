@@ -45,6 +45,7 @@ public class PatientServiceImpl implements PatientService {
         Patient patient = patientMapper.createRequestToEntity(request);
         patient.setStatus(EntityStatus.ACTIVE);
         Patient savedPatient = patientRepository.save(patient);
+        savedPatient.setPin(request.getPin().toUpperCase());
         PatientDetailedResponse patientDetailedResponse = patientMapper.toDetailedResponse(savedPatient);
         return new SuccessDataResult<>(patientDetailedResponse, "Patient created successfully");
     }
@@ -82,6 +83,7 @@ public class PatientServiceImpl implements PatientService {
                 .orElseThrow(() -> new NotFoundException("Patient not found with ID: " + id, ErrorCode.PATIENT_NOT_FOUND));
         Patient updatedPatient = patientMapper.updateRequestToEntity(request, existingPatient);
         Patient savedPatient = patientRepository.save(updatedPatient);
+        savedPatient.setPin(request.getPin().toUpperCase());
         return new SuccessDataResult<>(patientMapper.toDetailedResponse(savedPatient), "Patient updated successfully");
     }
 

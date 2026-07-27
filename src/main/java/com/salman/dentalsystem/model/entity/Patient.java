@@ -22,6 +22,8 @@ public class Patient extends BaseEntity {
     private String surname;
     private String patronymic;
     private String phoneNumber;
+    private String pin;
+    private String address;
 
     @Enumerated(EnumType.STRING)
     private EntityStatus status;

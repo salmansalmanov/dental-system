@@ -18,5 +18,7 @@ public class PatientDetailedResponse {
     private String surname;
     private String patronymic;
     private String phoneNumber;
+    private String pin;
+    private String address;
     private EntityStatus status;
 }

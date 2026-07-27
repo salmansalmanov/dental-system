@@ -18,11 +18,6 @@ public interface PatientMapper {
 
     PatientDetailedResponse toDetailedResponse(Patient patient);
 
-    @Named("toUpper")
-    default String toUpper(String value) {
-        return value.toUpperCase();
-    }
-
     PatientResponse toResponse(Patient patient);
 
     Patient updateRequestToEntity(PatientUpdateRequest request, @MappingTarget Patient entity);
